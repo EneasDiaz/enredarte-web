@@ -1,0 +1,378 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>enredARTE | Todo arte necesita un lugar</title>
+    <meta
+      name="description"
+      content="enredARTE conecta artistas independientes con espacios donde su arte puede vivir."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800;900&family=Space+Mono:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="site-header" data-header>
+      <a class="brand" href="#top" aria-label="Ir al inicio">
+        <span>enred</span><strong>ARTE</strong>
+      </a>
+
+      <nav class="main-nav" aria-label="Navegación principal">
+        <a href="#oportunidades">_oportunidades</a>
+        <a href="#como-funciona">_cómo funciona</a>
+        <a href="#artistas">_artistas</a>
+        <a href="#espacios">_espacios</a>
+      </nav>
+
+      <button class="menu-button" type="button" aria-expanded="false" data-menu-button>
+        menú
+      </button>
+    </header>
+
+    <main id="top">
+      <section class="hero" aria-labelledby="hero-title">
+        <div class="hero-kicker" aria-hidden="true">
+          <span>TODO</span><span>ARTE</span><span>NECESITA</span><span>UN</span><span>LUGAR</span>
+        </div>
+
+        <div class="hero-image" role="img" aria-label="Detalle de una obra clásica: ojos sobre fondo oscuro"></div>
+
+        <div class="hero-content">
+          <p class="eyebrow">Plataforma para arte independiente</p>
+          <h1 id="hero-title">
+            <span>enred</span>
+            <strong>ARTE</strong>
+          </h1>
+          <p class="hero-copy">
+            Conectamos artistas con lugares donde su arte puede vivir.
+          </p>
+
+          <div class="hero-actions" aria-label="Acciones principales">
+            <button class="button button-primary" type="button" data-open-artist>Soy artista</button>
+            <button class="button button-secondary" type="button" data-open-space>Tengo un espacio</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="search-panel" aria-label="Buscador de oportunidades">
+        <div>
+          <p class="section-label">buscar</p>
+          <h2>Encontrá una oportunidad para exponer.</h2>
+        </div>
+
+        <form class="filters" data-filter-form>
+          <label>
+            Disciplina
+            <select name="discipline">
+              <option value="todas">Todas</option>
+              <option value="pintura">Pintura</option>
+              <option value="fotografía">Fotografía</option>
+              <option value="ilustración">Ilustración</option>
+              <option value="performance">Performance</option>
+              <option value="música">Música</option>
+            </select>
+          </label>
+
+          <label>
+            Ciudad
+            <select name="city">
+              <option value="todas">Todas</option>
+              <option value="CABA">CABA</option>
+              <option value="Rosario">Rosario</option>
+              <option value="Córdoba">Córdoba</option>
+            </select>
+          </label>
+
+          <button class="button button-primary" type="submit">Buscar</button>
+        </form>
+      </section>
+
+      <section class="section opportunities" id="oportunidades" aria-labelledby="opportunities-title">
+        <div class="section-heading">
+          <p class="section-label">oportunidades abiertas</p>
+          <h2 id="opportunities-title">Lugares buscando artistas.</h2>
+          <p>
+            Convocatorias reales o cargadas manualmente para validar el producto antes de automatizar todo.
+          </p>
+        </div>
+
+        <div class="cards-grid" data-opportunities></div>
+      </section>
+
+      <section class="section split" id="como-funciona" aria-labelledby="how-title">
+        <div>
+          <p class="section-label">cómo funciona</p>
+          <h2 id="how-title">La plataforma hace el trabajo pesado.</h2>
+        </div>
+
+        <div class="steps">
+          <article>
+            <span>01</span>
+            <h3>Creás tu perfil</h3>
+            <p>Cargás disciplina, ciudad, portfolio, Instagram y una bio simple.</p>
+          </article>
+          <article>
+            <span>02</span>
+            <h3>Encontrás una convocatoria</h3>
+            <p>Ves espacios, cupos, fechas, costo por artista y disciplinas buscadas.</p>
+          </article>
+          <article>
+            <span>03</span>
+            <h3>Te sumás a la muestra</h3>
+            <p>Cuando se completa el cupo, la muestra queda confirmada.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="section audiences" aria-label="Públicos principales">
+        <article class="audience-card" id="artistas">
+          <p class="section-label">para artistas</p>
+          <h2>Mostrá lo que hacés sin depender de contactos.</h2>
+          <p>
+            Encontrá lugares abiertos a recibir tu talento y compartí costos con otros artistas.
+          </p>
+          <button class="button button-primary" type="button" data-open-artist>
+            Crear perfil de artista
+          </button>
+        </article>
+
+        <article class="audience-card" id="espacios">
+          <p class="section-label">para espacios</p>
+          <h2>Llená tu lugar de cultura, historias y personas.</h2>
+          <p>
+            Publicá capacidad, fechas, rubros posibles y costo para recibir propuestas artísticas.
+          </p>
+          <button class="button button-primary" type="button" data-open-space>
+            Publicar mi espacio
+          </button>
+        </article>
+      </section>
+
+      <section class="section disciplines" aria-labelledby="disciplines-title">
+        <div>
+          <p class="section-label">disciplinas</p>
+          <h2 id="disciplines-title">Tan curiosa, que abarca muchas.</h2>
+        </div>
+        <ul>
+          <li>pintura</li>
+          <li>ilustración</li>
+          <li>fotografía</li>
+          <li>música</li>
+          <li>ropa</li>
+          <li>tatuajes</li>
+          <li>escultura</li>
+          <li>literatura</li>
+          <li>performance</li>
+        </ul>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <p><span>enred</span><strong>ARTE</strong></p>
+      <p>Si es arte, tiene lugar.</p>
+      <a href="mailto:hola@enredarte.com">hola@enredarte.com</a>
+    </footer>
+
+      <div class="modal" data-space-modal aria-hidden="true">
+    <div class="modal-backdrop" data-close-space></div>
+
+    <div class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="space-title">
+      <button class="modal-close" type="button" data-close-space>
+        cerrar
+      </button>
+
+      <p class="section-label">publicar un espacio</p>
+
+      <h2 id="space-title">Contanos qué lugar tenés.</h2>
+
+      <form class="apply-form" data-space-form>
+        <label>
+          Nombre del espacio
+          <input type="text" name="spaceName" placeholder="Ej: Galería Palermo" required />
+        </label>
+
+        <label>
+          Ciudad / barrio
+          <input type="text" name="location" placeholder="Ej: Palermo, CABA" required />
+        </label>
+
+        <label>
+          Tipo de espacio
+          <select name="spaceType" required>
+            <option value="">Elegí una opción</option>
+            <option>Galería</option>
+            <option>Café</option>
+            <option>Librería</option>
+            <option>Estudio</option>
+            <option>Bar</option>
+            <option>Patio</option>
+            <option>Centro cultural</option>
+            <option>Otro</option>
+          </select>
+        </label>
+
+        <label>
+          Capacidad aproximada
+          <input type="text" name="capacity" placeholder="Ej: 60 personas" required />
+        </label>
+
+        <fieldset class="form-fieldset">
+          <legend>Disciplinas que puede recibir</legend>
+
+          <div class="checkbox-grid">
+            <label>
+              <input type="checkbox" name="disciplines" value="pintura" />
+              Pintura
+            </label>
+
+            <label>
+              <input type="checkbox" name="disciplines" value="fotografia" />
+              Fotografía
+            </label>
+
+            <label>
+              <input type="checkbox" name="disciplines" value="ilustracion" />
+              Ilustración
+            </label>
+
+            <label>
+              <input type="checkbox" name="disciplines" value="musica" />
+              Música
+            </label>
+
+            <label>
+              <input type="checkbox" name="disciplines" value="performance" />
+              Performance
+            </label>
+
+            <label>
+              <input type="checkbox" name="disciplines" value="literatura" />
+              Literatura
+            </label>
+          </div>
+        </fieldset>
+
+        <label>
+          Días y horarios disponibles
+          <input type="text" name="availability" placeholder="Ej: viernes y sábados de 18 a 23 h" />
+        </label>
+
+        <label>
+          Costo estimado
+          <input type="text" name="price" placeholder="Ej: $180.000 por jornada" />
+        </label>
+
+        <label>
+          Descripción del espacio
+          <textarea name="description" rows="4" placeholder="Contá qué tipo de eventos imaginás en tu espacio"></textarea>
+        </label>
+
+        <label>
+          Contacto
+          <input type="text" name="contact" placeholder="Mail, Instagram o WhatsApp" required />
+        </label>
+
+        <button class="button button-primary" type="submit">
+          Enviar espacio
+        </button>
+
+        <p class="form-success" data-space-success>
+          Listo. Recibimos tu espacio. Próximo paso: ver si puede convertirse en muestra, escenario, galería o todo eso junto.
+        </p>
+      </form>
+    </div>
+  </div>
+
+  <div class="modal" data-artist-modal aria-hidden="true">
+  <div class="modal-backdrop" data-close-artist></div>
+
+  <div class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="artist-title">
+    <button class="modal-close" type="button" data-close-artist>
+      cerrar
+    </button>
+
+    <p class="section-label">crear perfil de artista</p>
+
+    <h2 id="artist-title">Mostranos qué hacés.</h2>
+
+    <form class="apply-form" data-artist-form>
+      <label>
+        Nombre artístico o nombre completo
+        <input type="text" name="artistName" placeholder="Ej: Lucía Molina" required />
+      </label>
+
+      <label>
+        Disciplina principal
+        <select name="discipline" required>
+          <option value="">Elegí una opción</option>
+          <option>Pintura</option>
+          <option>Fotografía</option>
+          <option>Ilustración</option>
+          <option>Música</option>
+          <option>Diseño</option>
+          <option>Moda</option>
+          <option>Performance</option>
+          <option>Cine</option>
+          <option>Cerámica</option>
+          <option>Tattoo</option>
+          <option>Danza</option>
+          <option>Literatura</option>
+          <option>Teatro</option>
+          <option>Escultura</option>
+          <option>Muralismo</option>
+          <option>Arte digital</option>
+          <option>Otra</option>
+        </select>
+      </label>
+
+      <label>
+        Ciudad / barrio
+        <input type="text" name="location" placeholder="Ej: Palermo, CABA" required />
+      </label>
+
+      <label>
+        Instagram
+        <input type="text" name="instagram" placeholder="@tuusuario" />
+      </label>
+
+      <label>
+        Portfolio
+        <input type="text" name="portfolio" placeholder="Link a Behance, web, drive o similar" />
+      </label>
+
+      <label>
+        Bio breve
+        <textarea name="bio" rows="4" placeholder="Contá quién sos y qué tipo de obra hacés"></textarea>
+      </label>
+
+      <label>
+        ¿Qué estás buscando?
+        <select name="goal" required>
+          <option value="">Elegí una opción</option>
+          <option>Sumarme a una muestra colectiva</option>
+          <option>Encontrar un espacio para exponer</option>
+          <option>Conectar con otros artistas</option>
+          <option>Difundir mi trabajo</option>
+          <option>Todavía estoy explorando</option>
+        </select>
+      </label>
+
+      <button class="button button-primary" type="submit">
+        Crear perfil
+      </button>
+
+      <p class="form-success" data-artist-success>
+        Listo. Tu perfil ya empezó a enredarse. En el buen sentido.
+      </p>
+    </form>
+  </div>
+</div>
+
+    <script src="app.js"></script>
+  </body>
+</html>
