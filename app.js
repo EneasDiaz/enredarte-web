@@ -121,6 +121,139 @@ const opportunities = [
   },
 ];
 
+opportunities.unshift(...getSavedOpportunities());
+
+function getSavedArtists() {
+  const savedArtists = localStorage.getItem("enredarteArtists");
+
+  if (!savedArtists) return [];
+
+  return JSON.parse(savedArtists);
+}
+
+function getSavedSpaces() {
+  const savedSpaces = localStorage.getItem("enredarteSpaces");
+
+  if (!savedSpaces) return [];
+
+  return JSON.parse(savedSpaces);
+}
+
+function saveSpace(space) {
+  const savedSpaces = getSavedSpaces();
+
+  savedSpaces.unshift(space);
+
+  localStorage.setItem("enredarteSpaces", JSON.stringify(savedSpaces));
+}
+
+function getSavedOpportunities() {
+  const savedOpportunities = localStorage.getItem("enredarteOpportunities");
+
+  if (!savedOpportunities) return [];
+
+  return JSON.parse(savedOpportunities);
+}
+
+function saveOpportunity(opportunity) {
+  const savedOpportunities = getSavedOpportunities();
+
+  savedOpportunities.unshift(opportunity);
+
+  localStorage.setItem(
+    "enredarteOpportunities",
+    JSON.stringify(savedOpportunities)
+  );
+}
+
+function createSlug(text) {
+  return text
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/(^-|-$)/g, "");
+}
+
+const featuredArtists = [
+  {
+    name: "Lucía Molina",
+    discipline: "Pintura",
+    city: "CABA",
+    neighborhood: "Palermo",
+    bio: "Trabaja con pintura abstracta, texturas y formatos medianos.",
+    instagram: "@luciamolina.art",
+    initials: "LM",
+  },
+  {
+    name: "Tomás Ruiz",
+    discipline: "Fotografía",
+    city: "CABA",
+    neighborhood: "San Telmo",
+    bio: "Fotografía urbana, retrato documental y escenas nocturnas.",
+    instagram: "@tomasruizfoto",
+    initials: "TR",
+  },
+  {
+    name: "Camila Sosa",
+    discipline: "Ilustración",
+    city: "Rosario",
+    neighborhood: "Centro",
+    bio: "Ilustración editorial, prints y obra gráfica en pequeño formato.",
+    instagram: "@camilasosa.draws",
+    initials: "CS",
+  },
+  {
+    name: "Nico Arce",
+    discipline: "Performance",
+    city: "Córdoba",
+    neighborhood: "Güemes",
+    bio: "Cruza movimiento, música y arte vivo en espacios no convencionales.",
+    instagram: "@nicoarce.perform",
+    initials: "NA",
+  },
+];
+
+featuredArtists.unshift(...getSavedArtists());
+
+const featuredSpaces = [
+  {
+    name: "Galería Palermo",
+    type: "Galería",
+    city: "CABA",
+    neighborhood: "Palermo",
+    capacity: "80 personas",
+    disciplines: "Pintura / Fotografía / Ilustración",
+    availability: "Viernes y sábados",
+    price: "$240.000 por jornada",
+    description: "Sala blanca, recorrido simple y buena circulación para muestras visuales.",
+  },
+  {
+    name: "Café San Telmo",
+    type: "Café",
+    city: "CABA",
+    neighborhood: "San Telmo",
+    capacity: "45 personas",
+    disciplines: "Ilustración / Literatura / Música acústica",
+    availability: "Jueves por la tarde",
+    price: "$120.000 por jornada",
+    description: "Espacio cálido para muestras pequeñas, lecturas y obra gráfica.",
+  },
+  {
+    name: "Patio Cultural Güemes",
+    type: "Patio",
+    city: "Córdoba",
+    neighborhood: "Güemes",
+    capacity: "120 personas",
+    disciplines: "Música / Performance / Danza",
+    availability: "Sábados a la noche",
+    price: "$180.000 por jornada",
+    description: "Patio abierto para cruces escénicos, música en vivo y encuentros culturales.",
+  },
+];
+
+featuredSpaces.unshift(...getSavedSpaces());
+
 const header = document.querySelector("[data-header]");
 const nav = document.querySelector(".main-nav");
 const menuButton = document.querySelector("[data-menu-button]");
@@ -289,9 +422,30 @@ if (spaceForm) {
     const spaceData = Object.fromEntries(formData.entries());
 
     const selectedDisciplines = formData.getAll("disciplines");
-    spaceData.disciplines = selectedDisciplines;
 
-    console.log("Nuevo espacio:", spaceData);
+    const newSpace = {
+      name: spaceData.spaceName,
+      type: spaceData.spaceType,
+      city: spaceData.location,
+      neighborhood: "nuevo espacio",
+      capacity: spaceData.capacity,
+      disciplines:
+        selectedDisciplines.length > 0
+          ? selectedDisciplines.join(" / ")
+          : "Disciplinas abiertas",
+      availability: spaceData.availability || "A coordinar",
+      price: spaceData.price || "A consultar",
+      description:
+        spaceData.description ||
+        "Espacio abierto a recibir propuestas artísticas y culturales.",
+      contact: spaceData.contact,
+    };
+
+    console.log("Nuevo espacio:", newSpace);
+
+    featuredSpaces.unshift(newSpace);
+    saveSpace(newSpace);
+    renderFeaturedSpaces();
 
     spaceForm.reset();
 
@@ -341,6 +495,32 @@ closeArtistButtons.forEach((button) => {
   button.addEventListener("click", closeArtistModal);
 });
 
+function getInitials(name) {
+  return name
+    .split(" ")
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((word) => word[0])
+    .join("")
+    .toUpperCase();
+}
+
+function getSavedArtists() {
+  const savedArtists = localStorage.getItem("enredarteArtists");
+
+  if (!savedArtists) return [];
+
+  return JSON.parse(savedArtists);
+}
+
+function saveArtist(artist) {
+  const savedArtists = getSavedArtists();
+
+  savedArtists.unshift(artist);
+
+  localStorage.setItem("enredarteArtists", JSON.stringify(savedArtists));
+}
+
 if (artistForm) {
   artistForm.addEventListener("submit", (event) => {
     event.preventDefault();
@@ -348,7 +528,23 @@ if (artistForm) {
     const formData = new FormData(artistForm);
     const artistData = Object.fromEntries(formData.entries());
 
-    console.log("Nuevo artista:", artistData);
+    const newArtist = {
+      name: artistData.artistName,
+      discipline: artistData.discipline,
+      city: artistData.location,
+      neighborhood: "perfil nuevo",
+      bio:
+        artistData.bio ||
+        `Artista de ${artistData.discipline.toLowerCase()} buscando nuevos espacios para mostrar su obra.`,
+      instagram: artistData.instagram || artistData.portfolio || "portfolio pendiente",
+      initials: getInitials(artistData.artistName),
+    };
+
+    console.log("Nuevo artista:", newArtist);
+
+    featuredArtists.unshift(newArtist);
+    saveArtist(newArtist);
+    renderFeaturedArtists();
 
     artistForm.reset();
 
@@ -411,3 +607,220 @@ function renderOpportunityDetail() {
 }
 
 renderOpportunityDetail();
+
+const artistGrid = document.querySelector("[data-artist-grid]");
+
+function renderFeaturedArtists() {
+  if (!artistGrid) return;
+
+  artistGrid.innerHTML = featuredArtists
+    .map(
+      (artist) => `
+        <article class="artist-card">
+          <div class="artist-avatar" aria-hidden="true">
+            ${artist.initials}
+          </div>
+
+          <div class="artist-card-content">
+            <p class="section-label">${artist.discipline}</p>
+
+            <h3>${artist.name}</h3>
+
+            <p>${artist.bio}</p>
+
+            <div class="artist-meta">
+              <span>${artist.neighborhood}, ${artist.city}</span>
+              <span>${artist.instagram}</span>
+            </div>
+          </div>
+        </article>
+      `
+    )
+    .join("");
+}
+
+renderFeaturedArtists();
+
+const spaceGrid = document.querySelector("[data-space-grid]");
+
+function renderFeaturedSpaces() {
+  if (!spaceGrid) return;
+
+  spaceGrid.innerHTML = featuredSpaces
+    .map(
+      (space) => `
+        <article class="space-card">
+          <div class="space-card-top">
+            <p class="section-label">${space.type}</p>
+            <h3>${space.name}</h3>
+            <p>${space.description}</p>
+          </div>
+
+          <div class="space-card-info">
+            <div>
+              <span>ubicación</span>
+              <strong>${space.neighborhood}, ${space.city}</strong>
+            </div>
+
+            <div>
+              <span>capacidad</span>
+              <strong>${space.capacity}</strong>
+            </div>
+
+            <div>
+              <span>disciplinas</span>
+              <strong>${space.disciplines}</strong>
+            </div>
+
+            <div>
+              <span>disponibilidad</span>
+              <strong>${space.availability || "A coordinar"}</strong>
+            </div>
+
+            <div>
+              <span>costo</span>
+              <strong>${space.price || "A consultar"}</strong>
+            </div>
+          </div>
+          <div class="space-card-actions">
+            <button
+              class="button button-secondary"
+              type="button"
+              data-open-create-opportunity
+              data-space-name="${space.name}"
+              data-space-location="${space.neighborhood}, ${space.city}"
+              data-space-price="${space.price}"
+            >
+              Crear convocatoria
+            </button>
+          </div>
+        </article>
+      `
+    )
+    .join("");
+}
+
+renderFeaturedSpaces();
+
+const createOpportunityModal = document.querySelector(
+  "[data-create-opportunity-modal]"
+);
+const createOpportunityForm = document.querySelector(
+  "[data-create-opportunity-form]"
+);
+const closeCreateOpportunityButtons = document.querySelectorAll(
+  "[data-close-create-opportunity]"
+);
+const createOpportunitySpaceInput = document.querySelector(
+  "[data-create-opportunity-space]"
+);
+const createOpportunityLocationInput = document.querySelector(
+  "[data-create-opportunity-location]"
+);
+const createOpportunitySuccess = document.querySelector(
+  "[data-create-opportunity-success]"
+);
+
+function openCreateOpportunityModal(space = {}) {
+  if (!createOpportunityModal) return;
+
+  createOpportunityModal.classList.add("is-open");
+  createOpportunityModal.setAttribute("aria-hidden", "false");
+  document.body.style.overflow = "hidden";
+
+  if (createOpportunitySpaceInput && space.name) {
+    createOpportunitySpaceInput.value = space.name;
+  }
+
+  if (createOpportunityLocationInput && space.location) {
+    createOpportunityLocationInput.value = space.location;
+  }
+
+  if (createOpportunitySuccess) {
+    createOpportunitySuccess.classList.remove("is-visible");
+  }
+}
+
+function closeCreateOpportunityModal() {
+  if (!createOpportunityModal) return;
+
+  createOpportunityModal.classList.remove("is-open");
+  createOpportunityModal.setAttribute("aria-hidden", "true");
+  document.body.style.overflow = "";
+}
+
+if (spaceGrid) {
+  spaceGrid.addEventListener("click", (event) => {
+    const button = event.target.closest("[data-open-create-opportunity]");
+
+    if (!button) return;
+
+    openCreateOpportunityModal({
+      name: button.dataset.spaceName,
+      location: button.dataset.spaceLocation,
+      price: button.dataset.spacePrice,
+    });
+  });
+}
+
+closeCreateOpportunityButtons.forEach((button) => {
+  button.addEventListener("click", closeCreateOpportunityModal);
+});
+
+if (createOpportunityForm) {
+  createOpportunityForm.addEventListener("submit", (event) => {
+    event.preventDefault();
+
+    const formData = new FormData(createOpportunityForm);
+    const data = Object.fromEntries(formData.entries());
+
+    const totalSpots = Number(data.totalSpots);
+    const confirmed = Number(data.confirmed);
+    const availableSpots = Math.max(totalSpots - confirmed, 0);
+
+    const disciplineList = data.disciplines
+      .split(",")
+      .map((item) => item.trim().toLowerCase())
+      .filter(Boolean);
+
+    const newOpportunity = {
+      slug: createSlug(`${data.spaceName}-${data.title}-${Date.now()}`),
+      title: data.spaceName,
+      fullTitle: `${data.spaceName} ${data.title}.`,
+      city: data.location,
+      neighborhood: "nuevo espacio",
+      discipline: disciplineList,
+      detailDiscipline: disciplineList
+        .map((item) => item.charAt(0).toUpperCase() + item.slice(1))
+        .join(" / "),
+      description: data.description,
+      detailDescription: data.description,
+      date: data.date,
+      time: data.time,
+      cost: data.artistCost,
+      totalCost: data.totalCost,
+      confirmed,
+      totalSpots,
+      availableSpots,
+      spots: `${availableSpots} cupos`,
+    };
+
+    console.log("Nueva convocatoria:", newOpportunity);
+
+    opportunities.unshift(newOpportunity);
+    saveOpportunity(newOpportunity);
+    renderCards(opportunities);
+
+    createOpportunityForm.reset();
+
+    if (createOpportunitySuccess) {
+      createOpportunitySuccess.classList.add("is-visible");
+    }
+  });
+}
+
+document.addEventListener("keydown", (event) => {
+  if (event.key === "Escape") {
+    closeCreateOpportunityModal();
+  }
+});

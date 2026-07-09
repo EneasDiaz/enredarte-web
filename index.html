@@ -104,6 +104,34 @@
         <div class="cards-grid" data-opportunities></div>
       </section>
 
+      <section class="section featured-artists" id="artistas-destacados">
+        <div class="section-heading">
+          <p class="section-label">comunidad</p>
+
+          <h2>Artistas que ya están buscando dónde mostrar lo que hacen.</h2>
+
+          <p>
+            Perfiles abiertos a muestras colectivas, cruces de disciplinas y nuevos espacios.
+          </p>
+        </div>
+
+        <div class="artist-grid" data-artist-grid></div>
+      </section>
+
+      <section class="section featured-spaces" id="espacios-abiertos">
+        <div class="section-heading">
+          <p class="section-label">espacios</p>
+
+          <h2>Lugares que pueden convertirse en muestra, escenario o encuentro.</h2>
+
+          <p>
+            Galerías, cafés, estudios, patios y espacios culturales abiertos a recibir artistas.
+          </p>
+        </div>
+
+        <div class="space-grid" data-space-grid></div>
+      </section>
+
       <section class="section split" id="como-funciona" aria-labelledby="how-title">
         <div>
           <p class="section-label">cómo funciona</p>
@@ -368,6 +396,127 @@
 
       <p class="form-success" data-artist-success>
         Listo. Tu perfil ya empezó a enredarse. En el buen sentido.
+      </p>
+    </form>
+  </div>
+</div>
+
+<div class="modal" data-create-opportunity-modal aria-hidden="true">
+  <div class="modal-backdrop" data-close-create-opportunity></div>
+
+  <div
+    class="modal-panel"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="create-opportunity-title"
+  >
+    <button class="modal-close" type="button" data-close-create-opportunity>
+      cerrar
+    </button>
+
+    <p class="section-label">crear convocatoria</p>
+
+    <h2 id="create-opportunity-title">Abrí tu espacio al arte.</h2>
+
+    <form class="apply-form" data-create-opportunity-form>
+      <label>
+        Espacio
+        <input
+          type="text"
+          name="spaceName"
+          data-create-opportunity-space
+          placeholder="Ej: Galería Palermo"
+          required
+        />
+      </label>
+
+      <label>
+        Ciudad / barrio
+        <input
+          type="text"
+          name="location"
+          data-create-opportunity-location
+          placeholder="Ej: Palermo, CABA"
+          required
+        />
+      </label>
+
+      <label>
+        Título de la convocatoria
+        <input
+          type="text"
+          name="title"
+          placeholder="Ej: busca artistas visuales"
+          required
+        />
+      </label>
+
+      <label>
+        Disciplinas buscadas
+        <input
+          type="text"
+          name="disciplines"
+          placeholder="Ej: pintura, fotografía, ilustración"
+          required
+        />
+      </label>
+
+      <label>
+        Fecha
+        <input type="text" name="date" placeholder="Ej: 14 AGO" required />
+      </label>
+
+      <label>
+        Horario
+        <input type="text" name="time" placeholder="Ej: 19 a 23 h" required />
+      </label>
+
+      <label>
+        Costo total
+        <input
+          type="text"
+          name="totalCost"
+          placeholder="Ej: $240.000"
+          required
+        />
+      </label>
+
+      <label>
+        Costo por artista
+        <input
+          type="text"
+          name="artistCost"
+          placeholder="Ej: $40.000"
+          required
+        />
+      </label>
+
+      <label>
+        Cupos totales
+        <input type="number" name="totalSpots" min="1" placeholder="Ej: 6" required />
+      </label>
+
+      <label>
+        Artistas ya confirmados
+        <input type="number" name="confirmed" min="0" placeholder="Ej: 2" required />
+      </label>
+
+      <label>
+        Descripción
+        <textarea
+          name="description"
+          rows="4"
+          placeholder="Contá qué tipo de muestra imaginás"
+          required
+        ></textarea>
+      </label>
+
+      <button class="button button-primary" type="submit">
+        Publicar convocatoria
+      </button>
+
+      <p class="form-success" data-create-opportunity-success>
+        Listo. La convocatoria ya está en oportunidades abiertas. El arte no espera, claramente.
       </p>
     </form>
   </div>
