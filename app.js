@@ -123,12 +123,57 @@ const opportunities = [
 
 opportunities.unshift(...getSavedOpportunities());
 
+const confirmedArtistsByOpportunity = {
+  "galeria-palermo": [
+    { name: "Lucía M.", discipline: "Pintura" },
+    { name: "Tomás R.", discipline: "Fotografía" },
+    { name: "Camila S.", discipline: "Ilustración" },
+    { name: "Nico A.", discipline: "Pintura" },
+  ],
+
+  "cafe-san-telmo": [
+    { name: "Mora L.", discipline: "Ilustración" },
+    { name: "Julián P.", discipline: "Literatura" },
+  ],
+
+  "patio-cultural-guemes": [
+    { name: "Nina V.", discipline: "Música" },
+    { name: "Fede R.", discipline: "Performance" },
+    { name: "Sol C.", discipline: "Danza" },
+  ],
+
+  "libreria-del-rio": [
+    { name: "Ana B.", discipline: "Fotografía" },
+  ],
+
+  "estudio-abierto": [
+    { name: "Rocío T.", discipline: "Pintura" },
+    { name: "Luca F.", discipline: "Ilustración" },
+    { name: "Martín E.", discipline: "Performance" },
+    { name: "Julia N.", discipline: "Pintura" },
+  ],
+
+  "terraza-norte": [],
+};
+
+function getBaseConfirmedArtists(slug) {
+  return confirmedArtistsByOpportunity[slug] || [];
+}
+
 function getSavedArtists() {
   const savedArtists = localStorage.getItem("enredarteArtists");
 
   if (!savedArtists) return [];
 
   return JSON.parse(savedArtists);
+}
+
+function saveArtist(artist) {
+  const savedArtists = getSavedArtists();
+
+  savedArtists.unshift(artist);
+
+  localStorage.setItem("enredarteArtists", JSON.stringify(savedArtists));
 }
 
 function getSavedSpaces() {
@@ -164,6 +209,159 @@ function saveOpportunity(opportunity) {
     "enredarteOpportunities",
     JSON.stringify(savedOpportunities)
   );
+}
+
+function getCurrentOpportunitySlug() {
+  const params = new URLSearchParams(window.location.search);
+  return params.get("o") || "galeria-palermo";
+}
+
+function getSavedApplications() {
+  const savedApplications = localStorage.getItem("enredarteApplications");
+
+  if (!savedApplications) return {};
+
+  return JSON.parse(savedApplications);
+}
+
+function getApplicationsByOpportunity(slug) {
+  const savedApplications = getSavedApplications();
+
+  return savedApplications[slug] || [];
+}
+
+function saveApplication(slug, application) {
+  const savedApplications = getSavedApplications();
+
+  if (!savedApplications[slug]) {
+    savedApplications[slug] = [];
+  }
+
+  savedApplications[slug].unshift(application);
+
+  localStorage.setItem(
+    "enredarteApplications",
+    JSON.stringify(savedApplications)
+  );
+}
+
+function getSavedApprovedArtists() {
+  const savedApprovedArtists = localStorage.getItem("enredarteApprovedArtists");
+
+  if (!savedApprovedArtists) return {};
+
+  return JSON.parse(savedApprovedArtists);
+}
+
+function getApprovedArtistsByOpportunity(slug) {
+  const savedApprovedArtists = getSavedApprovedArtists();
+
+  return savedApprovedArtists[slug] || [];
+}
+
+function saveApprovedArtist(slug, artist) {
+  const savedApprovedArtists = getSavedApprovedArtists();
+
+  if (!savedApprovedArtists[slug]) {
+    savedApprovedArtists[slug] = [];
+  }
+
+  const alreadyApproved = savedApprovedArtists[slug].some(
+    (item) => item.createdAt === artist.createdAt
+  );
+
+  if (alreadyApproved) return;
+
+  savedApprovedArtists[slug].unshift(artist);
+
+  localStorage.setItem(
+    "enredarteApprovedArtists",
+    JSON.stringify(savedApprovedArtists)
+  );
+}
+
+function getSavedRejectedApplications() {
+  const savedRejectedApplications = localStorage.getItem(
+    "enredarteRejectedApplications"
+  );
+
+  if (!savedRejectedApplications) return {};
+
+  return JSON.parse(savedRejectedApplications);
+}
+
+function getRejectedApplicationsByOpportunity(slug) {
+  const savedRejectedApplications = getSavedRejectedApplications();
+
+  return savedRejectedApplications[slug] || [];
+}
+
+function saveRejectedApplication(slug, application) {
+  const savedRejectedApplications = getSavedRejectedApplications();
+
+  if (!savedRejectedApplications[slug]) {
+    savedRejectedApplications[slug] = [];
+  }
+
+  const alreadyRejected = savedRejectedApplications[slug].some(
+    (item) => item.createdAt === application.createdAt
+  );
+
+  if (alreadyRejected) return;
+
+  savedRejectedApplications[slug].unshift(application);
+
+  localStorage.setItem(
+    "enredarteRejectedApplications",
+    JSON.stringify(savedRejectedApplications)
+  );
+}
+
+function removeApprovedArtist(slug, createdAt) {
+  const savedApprovedArtists = getSavedApprovedArtists();
+
+  if (!savedApprovedArtists[slug]) return;
+
+  savedApprovedArtists[slug] = savedApprovedArtists[slug].filter(
+    (artist) => artist.createdAt !== createdAt
+  );
+
+  localStorage.setItem(
+    "enredarteApprovedArtists",
+    JSON.stringify(savedApprovedArtists)
+  );
+}
+
+function removeRejectedApplication(slug, createdAt) {
+  const savedRejectedApplications = getSavedRejectedApplications();
+
+  if (!savedRejectedApplications[slug]) return;
+
+  savedRejectedApplications[slug] = savedRejectedApplications[slug].filter(
+    (application) => application.createdAt !== createdAt
+  );
+
+  localStorage.setItem(
+    "enredarteRejectedApplications",
+    JSON.stringify(savedRejectedApplications)
+  );
+}
+
+function getOpportunityRuntimeState(opportunity) {
+  const approvedArtists = getApprovedArtistsByOpportunity(opportunity.slug);
+
+  const confirmed = Math.min(
+    opportunity.confirmed + approvedArtists.length,
+    opportunity.totalSpots
+  );
+
+  const available = Math.max(opportunity.totalSpots - confirmed, 0);
+
+  return {
+    confirmed,
+    available,
+    isFull: available === 0,
+  };
 }
 
 function createSlug(text) {
@@ -266,29 +464,68 @@ function renderCards(items) {
   container.innerHTML = "";
 
   if (!items.length) {
-    container.innerHTML = `<article class="opportunity-card"><h3>No encontramos convocatorias.</h3><p>Probá con otra disciplina o ciudad.</p></article>`;
+    container.innerHTML = `
+      <article class="opportunity-card">
+        <h3>No encontramos convocatorias.</h3>
+        <p>Probá con otra disciplina o ciudad.</p>
+      </article>
+    `;
     return;
   }
 
   items.forEach((item) => {
+    const state = getOpportunityRuntimeState(item);
+
+    const statusLabel = state.isFull
+      ? "convocatoria completa"
+      : state.available === 1
+        ? "1 cupo disponible"
+        : `${state.available} cupos disponibles`;
+
+    const buttonLabel = state.isFull
+      ? "Ver convocatoria completa"
+      : "Ver convocatoria";
+
+    const disciplineText = Array.isArray(item.discipline)
+      ? item.discipline.join(" / ")
+      : item.discipline;
+
     const card = document.createElement("article");
-    card.className = "opportunity-card";
+
+    card.className = `opportunity-card ${state.isFull ? "is-full" : ""}`;
+
     card.innerHTML = `
       <div class="card-top">
         <span>${item.city}</span>
         <span>${item.date}</span>
       </div>
+
       <h3>${item.title}</h3>
+
       <p>${item.description}</p>
+
       <div class="card-meta">
-        <div class="meta-row"><span>disciplinas</span><strong>${item.discipline.join(" / ")}</strong></div>
-        <div class="meta-row"><span>costo por artista</span><strong>${item.cost}</strong></div>
-        <div class="meta-row"><span>disponibles</span><strong>${item.spots}</strong></div>
+        <div class="meta-row">
+          <span>disciplinas</span>
+          <strong>${disciplineText}</strong>
+        </div>
+
+        <div class="meta-row">
+          <span>costo por artista</span>
+          <strong>${item.cost}</strong>
+        </div>
+
+        <div class="meta-row">
+          <span>estado</span>
+          <strong>${statusLabel}</strong>
+        </div>
       </div>
+
       <a class="button button-secondary" href="oportunidad.html?o=${item.slug}">
-        Ver convocatoria
+        ${buttonLabel}
       </a>
     `;
+
     container.appendChild(card);
   });
 }
@@ -336,9 +573,21 @@ const formSuccess = document.querySelector("[data-form-success]");
 function openApplyModal() {
   if (!applyModal) return;
 
+  const opportunity = getOpportunityFromUrl();
+  const state = getOpportunityRuntimeState(opportunity);
+
+  if (state.isFull) {
+    alert("Esta convocatoria ya completó sus cupos.");
+    return;
+  }
+
   applyModal.classList.add("is-open");
   applyModal.setAttribute("aria-hidden", "false");
   document.body.style.overflow = "hidden";
+
+  if (formSuccess) {
+    formSuccess.classList.remove("is-visible");
+  }
 }
 
 function closeApplyModal() {
@@ -361,10 +610,32 @@ if (applyForm) {
   applyForm.addEventListener("submit", (event) => {
     event.preventDefault();
 
-    const formData = new FormData(applyForm);
-    const application = Object.fromEntries(formData.entries());
+    const opportunity = getOpportunityFromUrl();
+    const state = getOpportunityRuntimeState(opportunity);
 
-    console.log("Nueva postulación:", application);
+    if (state.isFull) {
+      alert("Esta convocatoria ya completó sus cupos.");
+      closeApplyModal();
+      return;
+    }
+
+    const formData = new FormData(applyForm);
+    const applicationData = Object.fromEntries(formData.entries());
+
+    const slug = getCurrentOpportunitySlug();
+
+    const newApplication = {
+      name: applicationData.name,
+      discipline: applicationData.discipline,
+      portfolio: applicationData.portfolio,
+      message: applicationData.message,
+      createdAt: new Date().toISOString(),
+    };
+
+    console.log("Nueva postulación:", newApplication);
+
+    saveApplication(slug, newApplication);
+    renderApplications();
 
     applyForm.reset();
 
@@ -505,21 +776,7 @@ function getInitials(name) {
     .toUpperCase();
 }
 
-function getSavedArtists() {
-  const savedArtists = localStorage.getItem("enredarteArtists");
 
-  if (!savedArtists) return [];
-
-  return JSON.parse(savedArtists);
-}
-
-function saveArtist(artist) {
-  const savedArtists = getSavedArtists();
-
-  savedArtists.unshift(artist);
-
-  localStorage.setItem("enredarteArtists", JSON.stringify(savedArtists));
-}
 
 if (artistForm) {
   artistForm.addEventListener("submit", (event) => {
@@ -824,3 +1081,470 @@ document.addEventListener("keydown", (event) => {
     closeCreateOpportunityModal();
   }
 });
+
+const applicationsList = document.querySelector("[data-applications-list]");
+const applicationsCount = document.querySelector("[data-applications-count]");
+
+function renderApplications() {
+  if (!applicationsList) return;
+
+  const slug = getCurrentOpportunitySlug();
+  const applications = getApplicationsByOpportunity(slug);
+  const approvedArtists = getApprovedArtistsByOpportunity(slug);
+  const rejectedApplications = getRejectedApplicationsByOpportunity(slug);
+
+  const visibleApplications = applications.filter((application) => {
+    const isRejected = rejectedApplications.some(
+      (item) => item.createdAt === application.createdAt
+    );
+
+    return !isRejected;
+  });
+
+  if (applicationsCount) {
+    const label =
+      visibleApplications.length === 1
+        ? "1 postulación"
+        : `${visibleApplications.length} postulaciones`;
+
+    applicationsCount.textContent = label;
+  }
+
+  if (visibleApplications.length === 0) {
+    applicationsList.innerHTML = `
+      <p class="empty-state">
+        Todavía no hay postulaciones para esta convocatoria.
+      </p>
+    `;
+
+    return;
+  }
+
+  applicationsList.innerHTML = visibleApplications
+    .map((application) => {
+      const isApproved = approvedArtists.some(
+        (artist) => artist.createdAt === application.createdAt
+      );
+
+      return `
+        <article class="application-card ${isApproved ? "is-approved" : ""}">
+          <div>
+            <h3>${application.name}</h3>
+
+            <div class="application-meta">
+              <span>${application.discipline}</span>
+              <span>${application.portfolio}</span>
+            </div>
+          </div>
+
+          ${
+            application.message
+              ? `<p>“${application.message}”</p>`
+              : `<p>Sin mensaje adicional.</p>`
+          }
+
+          <div class="application-actions">
+            ${
+              isApproved
+                ? `<span class="application-status">aprobada</span>`
+                : `<span class="application-status">pendiente de revisión</span>`
+            }
+          </div>
+        </article>
+      `;
+    })
+    .join("");
+}
+
+renderApplications();
+
+const confirmedArtistsList = document.querySelector("[data-confirmed-artists-list]");
+
+function renderBaseConfirmedArtists() {
+  if (!confirmedArtistsList) return;
+
+  const opportunity = getOpportunityFromUrl();
+  const baseArtists = getBaseConfirmedArtists(opportunity.slug);
+
+  if (baseArtists.length === 0 && opportunity.confirmed === 0) {
+    confirmedArtistsList.innerHTML = `
+      <p class="empty-state">
+        Todavía no hay artistas confirmados.
+      </p>
+    `;
+    return;
+  }
+
+  const missingConfirmedCount = Math.max(
+    opportunity.confirmed - baseArtists.length,
+    0
+  );
+
+  const placeholderArtists = Array.from(
+    { length: missingConfirmedCount },
+    (_, index) => ({
+      name: `Artista confirmado ${index + 1}`,
+      discipline: "Disciplina a confirmar",
+    })
+  );
+
+  const artistsToRender = [...baseArtists, ...placeholderArtists];
+
+  confirmedArtistsList.innerHTML = artistsToRender
+    .map(
+      (artist) => `
+        <div>
+          <strong>${artist.name}</strong>
+          <span>${artist.discipline}</span>
+        </div>
+      `
+    )
+    .join("");
+}
+
+renderBaseConfirmedArtists();
+
+const approvedArtistsList = document.querySelector("[data-approved-artists-list]");
+
+function renderApprovedArtists() {
+  if (!approvedArtistsList) return;
+
+  const slug = getCurrentOpportunitySlug();
+  const approvedArtists = getApprovedArtistsByOpportunity(slug);
+
+  if (approvedArtists.length === 0) {
+    approvedArtistsList.innerHTML = "";
+    return;
+  }
+
+  approvedArtistsList.innerHTML = approvedArtists
+    .map(
+      (artist) => `
+        <article class="approved-artist-card">
+          <strong>${artist.name}</strong>
+          <span>${artist.discipline} · ${artist.portfolio}</span>
+        </article>
+      `
+    )
+    .join("");
+}
+
+renderApprovedArtists();
+
+function updateOpportunityStatusWithApprovals() {
+  if (!opportunityStatus || !opportunitySpots || !opportunityAvailable) return;
+
+  const opportunity = getOpportunityFromUrl();
+  const state = getOpportunityRuntimeState(opportunity);
+
+  opportunityStatus.textContent = `${state.confirmed} de ${opportunity.totalSpots} confirmados`;
+
+  opportunitySpots.textContent = state.isFull
+    ? "La muestra ya completó sus cupos."
+    : `Faltan ${state.available} artistas para confirmar la muestra.`;
+
+  opportunityAvailable.textContent =
+    state.available === 1
+      ? "1 disponible"
+      : `${state.available} disponibles`;
+
+  const applyButtons = document.querySelectorAll("[data-open-apply]");
+
+  applyButtons.forEach((button) => {
+    if (state.isFull) {
+      button.textContent = "Cupos completos";
+      button.disabled = true;
+      button.classList.add("is-disabled");
+    } else {
+      button.textContent = "Quiero sumarme";
+      button.disabled = false;
+      button.classList.remove("is-disabled");
+    }
+  });
+}
+
+updateOpportunityStatusWithApprovals();
+
+
+
+const adminList = document.querySelector("[data-admin-list]");
+const adminSummary = document.querySelector("[data-admin-summary]");
+
+function getAllApplications() {
+  const savedApplications = getSavedApplications();
+
+  return Object.values(savedApplications).flat();
+}
+
+function getAllApprovedArtists() {
+  const savedApprovedArtists = getSavedApprovedArtists();
+
+  return Object.values(savedApprovedArtists).flat();
+}
+
+function getAllRejectedApplications() {
+  const savedRejectedApplications = getSavedRejectedApplications();
+
+  return Object.values(savedRejectedApplications).flat();
+}
+
+function renderAdminSummary() {
+  if (!adminSummary) return;
+
+  const totalApplications = getAllApplications().length;
+const totalApproved = getAllApprovedArtists().length;
+const totalRejected = getAllRejectedApplications().length;
+
+const pendingApplications = Math.max(
+  totalApplications - totalApproved - totalRejected,
+  0
+);
+
+  adminSummary.innerHTML = `
+  <article class="admin-stat">
+    <span>postulaciones</span>
+    <strong>${totalApplications}</strong>
+  </article>
+
+  <article class="admin-stat">
+    <span>aprobadas</span>
+    <strong>${totalApproved}</strong>
+  </article>
+
+  <article class="admin-stat">
+    <span>rechazadas</span>
+    <strong>${totalRejected}</strong>
+  </article>
+
+  <article class="admin-stat">
+    <span>pendientes</span>
+    <strong>${pendingApplications}</strong>
+  </article>
+`;
+}
+
+function renderAdminDashboard() {
+  if (!adminList) return;
+
+  adminList.innerHTML = opportunities
+    .map((opportunity) => {
+      const applications = getApplicationsByOpportunity(opportunity.slug);
+      const approvedArtists = getApprovedArtistsByOpportunity(opportunity.slug);
+      const rejectedApplications = getRejectedApplicationsByOpportunity(
+        opportunity.slug
+      );
+
+      const confirmedWithApprovals = Math.min(
+        opportunity.confirmed + approvedArtists.length,
+        opportunity.totalSpots
+      );
+
+      const availableWithApprovals = Math.max(
+        opportunity.totalSpots - confirmedWithApprovals,
+        0
+      );
+
+      return `
+        <article class="admin-opportunity">
+          <div class="admin-opportunity-header">
+            <div>
+              <p class="section-label">${opportunity.city}</p>
+              <h2>${opportunity.fullTitle || opportunity.title}</h2>
+            </div>
+
+            <div class="admin-opportunity-meta">
+              <span>${confirmedWithApprovals} de ${opportunity.totalSpots} confirmados</span>
+              <span>${availableWithApprovals} cupos disponibles</span>
+              <span>${applications.length} postulaciones</span>
+            </div>
+          </div>
+
+          <div class="admin-applications">
+            ${
+              applications.length === 0
+                ? `<p class="empty-state">No hay postulaciones todavía.</p>`
+                : applications
+                    .map((application) => {
+                      const isApproved = approvedArtists.some(
+                        (artist) => artist.createdAt === application.createdAt
+                      );
+                      const isRejected = rejectedApplications.some(
+                        (item) => item.createdAt === application.createdAt
+                      );
+
+                      return `
+                        <article class="admin-application">
+                          <div class="admin-application-top">
+                            <div>
+                              <h3>${application.name}</h3>
+
+                              <div class="application-meta">
+                                <span>${application.discipline}</span>
+                                <span>${application.portfolio}</span>
+                              </div>
+                            </div>
+
+                            ${
+                              isApproved
+                                ? `<div class="admin-actions">
+                                    <span class="application-status">aprobada</span>
+
+                                    <button
+                                      class="button button-secondary"
+                                      type="button"
+                                      data-admin-reset
+                                      data-opportunity-slug="${opportunity.slug}"
+                                      data-application-created-at="${application.createdAt}"
+                                    >
+                                      Volver a pendiente
+                                    </button>
+                                  </div>`
+                                : isRejected
+                                  ? `<div class="admin-actions">
+                                      <span class="application-status">rechazada</span>
+
+                                      <button
+                                        class="button button-secondary"
+                                        type="button"
+                                        data-admin-reset
+                                        data-opportunity-slug="${opportunity.slug}"
+                                        data-application-created-at="${application.createdAt}"
+                                      >
+                                        Volver a pendiente
+                                      </button>
+                                    </div>`
+                                  : `<div class="admin-actions">
+                                      <button
+                                        class="button button-secondary"
+                                        type="button"
+                                        data-admin-approve
+                                        data-opportunity-slug="${opportunity.slug}"
+                                        data-application-created-at="${application.createdAt}"
+                                      >
+                                        Aprobar
+                                      </button>
+
+                                      <button
+                                        class="button button-secondary"
+                                        type="button"
+                                        data-admin-reject
+                                        data-opportunity-slug="${opportunity.slug}"
+                                        data-application-created-at="${application.createdAt}"
+                                      >
+                                        Rechazar
+                                      </button>
+                                    </div>`
+                            }
+                          </div>
+
+                          ${
+                            application.message
+                              ? `<p>“${application.message}”</p>`
+                              : `<p>Sin mensaje adicional.</p>`
+                          }
+                        </article>
+                      `;
+                    })
+                    .join("")
+            }
+          </div>
+        </article>
+      `;
+    })
+    .join("");
+}
+
+if (adminList) {
+  renderAdminSummary();
+  renderAdminDashboard();
+
+  adminList.addEventListener("click", (event) => {
+  const approveButton = event.target.closest("[data-admin-approve]");
+  const rejectButton = event.target.closest("[data-admin-reject]");
+  const resetButton = event.target.closest("[data-admin-reset]");
+
+  if (resetButton) {
+    const slug = resetButton.dataset.opportunitySlug;
+    const createdAt = resetButton.dataset.applicationCreatedAt;
+
+    removeApprovedArtist(slug, createdAt);
+    removeRejectedApplication(slug, createdAt);
+
+    renderAdminSummary();
+    renderAdminDashboard();
+
+    return;
+  }
+
+  if (rejectButton) {
+    const slug = rejectButton.dataset.opportunitySlug;
+    const createdAt = rejectButton.dataset.applicationCreatedAt;
+    const applications = getApplicationsByOpportunity(slug);
+
+    const application = applications.find(
+      (item) => item.createdAt === createdAt
+    );
+
+    if (!application) return;
+
+    saveRejectedApplication(slug, application);
+
+    renderAdminSummary();
+    renderAdminDashboard();
+
+    return;
+  }
+
+  if (!approveButton) return;
+
+  const slug = approveButton.dataset.opportunitySlug;
+  const createdAt = approveButton.dataset.applicationCreatedAt;
+  const applications = getApplicationsByOpportunity(slug);
+  const opportunity = opportunities.find((item) => item.slug === slug);
+  const approvedArtists = getApprovedArtistsByOpportunity(slug);
+
+  if (!opportunity) return;
+
+  const availableSpots = Math.max(
+    opportunity.availableSpots - approvedArtists.length,
+    0
+  );
+
+  if (availableSpots === 0) {
+    alert("Esta convocatoria ya completó sus cupos.");
+    return;
+  }
+
+  const application = applications.find(
+    (item) => item.createdAt === createdAt
+  );
+
+  if (!application) return;
+
+  saveApprovedArtist(slug, application);
+
+  renderAdminSummary();
+  renderAdminDashboard();
+});
+}
+
+const resetDemoButton = document.querySelector("[data-reset-demo]");
+
+if (resetDemoButton) {
+  resetDemoButton.addEventListener("click", () => {
+    const confirmReset = confirm(
+      "¿Seguro que querés borrar artistas, espacios, convocatorias y postulaciones de prueba?"
+    );
+
+    if (!confirmReset) return;
+
+    localStorage.removeItem("enredarteArtists");
+    localStorage.removeItem("enredarteSpaces");
+    localStorage.removeItem("enredarteOpportunities");
+    localStorage.removeItem("enredarteApplications");
+    localStorage.removeItem("enredarteApprovedArtists");
+    localStorage.removeItem("enredarteRejectedApplications");
+
+    window.location.reload();
+  });
+}

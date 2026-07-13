@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Panel admin | enredARTE</title>
+
+    <meta name="description"
+        content="Panel interno de enredARTE para revisar postulaciones, aprobar artistas y gestionar convocatorias." />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800;900&family=Space+Mono:wght@400;700&display=swap"
+        rel="stylesheet" />
+
+    <link rel="stylesheet" href="styles.css" />
+</head>
+
+<body data-page="admin">
+    <header class="site-header detail-header" data-header>
+        <a class="brand" href="index.html" aria-label="Volver al inicio">
+            <span>enred</span><strong>ARTE</strong>
+        </a>
+
+        <nav class="main-nav" aria-label="Navegación principal">
+            <a href="index.html">_home</a>
+            <a href="index.html#oportunidades">_oportunidades</a>
+            <a href="index.html#artistas-destacados">_artistas</a>
+            <a href="index.html#espacios-abiertos">_espacios</a>
+        </nav>
+
+        <button class="menu-button" type="button" aria-expanded="false" data-menu-button>
+            menú
+        </button>
+    </header>
+
+    <main>
+        <section class="admin-hero" aria-labelledby="admin-title">
+            <p class="section-label">panel interno</p>
+
+            <h1 id="admin-title">Gestión de convocatorias.</h1>
+
+            <p>
+                Revisá postulaciones, aprobá artistas y seguí el estado de cada muestra.
+            </p>
+
+            <button class="button button-secondary admin-reset-button" type="button" data-reset-demo>
+                Limpiar datos de prueba
+            </button>
+        </section>
+
+        <section class="section admin-section">
+            <div class="admin-summary" data-admin-summary></div>
+
+            <div class="admin-list" data-admin-list></div>
+        </section>
+    </main>
+
+    <footer class="site-footer">
+        <p><span>enred</span><strong>ARTE</strong></p>
+        <p>Panel interno de gestión.</p>
+    </footer>
+
+    <script src="app.js"></script>
+</body>
+
+</html>
