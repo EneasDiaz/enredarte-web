@@ -1361,3 +1361,189 @@ button.button {
 .admin-reset-button {
   margin-top: 28px;
 }
+
+/* Panel del espacio */
+
+.space-panel-controls {
+  width: min(460px, 100%);
+  margin-top: 32px;
+}
+
+.space-panel-controls label {
+  display: grid;
+  gap: 10px;
+  color: var(--muted);
+  font-family: var(--mono);
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.space-panel-controls select {
+  width: 100%;
+  appearance: none;
+  color: var(--fg);
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  min-height: 48px;
+  padding: 0 18px;
+}
+
+/* Modal propuesta de muestra */
+
+.proposal-panel {
+  max-width: 760px;
+}
+
+.proposal-panel h2 {
+  max-width: 620px;
+}
+
+.proposal-panel > p {
+  max-width: 620px;
+}
+
+.proposal-space-card {
+  display: grid;
+  gap: 6px;
+  margin: 24px 0;
+  padding: 18px;
+  border: 1px solid var(--line);
+  border-radius: 22px;
+  background: var(--panel);
+}
+
+.proposal-space-card span {
+  color: var(--muted);
+  font-family: var(--mono);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.proposal-space-card strong {
+  color: var(--fg);
+  font-size: clamp(22px, 3vw, 34px);
+  letter-spacing: -0.05em;
+}
+
+.proposal-panel .modal-form {
+  margin-top: 22px;
+  padding-top: 22px;
+  border-top: 1px solid var(--line);
+}
+
+.proposal-panel textarea {
+  resize: vertical;
+  min-height: 130px;
+}
+
+.proposal-panel input,
+.proposal-panel select,
+.proposal-panel textarea {
+  background: var(--bg);
+}
+
+.proposal-panel .button {
+  margin-top: 8px;
+}
+
+/* Corrección formulario propuesta */
+
+.proposal-panel .modal-form {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+  margin-top: 22px;
+  padding-top: 22px;
+  border-top: 1px solid var(--line);
+}
+
+.proposal-panel .modal-form label {
+  display: grid;
+  gap: 8px;
+  color: var(--fg);
+  font-weight: 700;
+}
+
+.proposal-panel .modal-form label:nth-of-type(1),
+.proposal-panel .modal-form label:nth-of-type(3),
+.proposal-panel .modal-form label:nth-of-type(6) {
+  grid-column: 1 / -1;
+}
+
+.proposal-panel .modal-form input,
+.proposal-panel .modal-form select,
+.proposal-panel .modal-form textarea {
+  width: 100%;
+  min-height: 48px;
+  padding: 0 16px;
+  color: var(--fg);
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  font: inherit;
+}
+
+.proposal-panel .modal-form textarea {
+  min-height: 140px;
+  padding-block: 14px;
+  resize: vertical;
+}
+
+.proposal-panel .modal-form input::placeholder,
+.proposal-panel .modal-form textarea::placeholder {
+  color: var(--muted);
+}
+
+.proposal-panel .modal-form button,
+.proposal-panel .modal-form .form-success {
+  grid-column: 1 / -1;
+  justify-self: start;
+}
+
+@media (max-width: 720px) {
+  .proposal-panel .modal-form {
+    grid-template-columns: 1fr;
+  }
+
+  .proposal-panel .modal-form label {
+    grid-column: 1 / -1;
+  }
+}
+
+/* Propuestas recibidas */
+
+.space-panel-proposals {
+  display: grid;
+  gap: 22px;
+  margin-bottom: 28px;
+}
+
+.proposal-status {
+  display: inline-flex;
+  width: fit-content;
+  padding: 7px 10px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--muted);
+  font-family: var(--mono);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.proposal-status.is-converted {
+  color: var(--fg);
+  background: var(--panel);
+}
+
+.convert-proposal-note {
+  color: var(--muted);
+}
+
+.proposal-status.is-accepted {
+  color: var(--fg);
+  background: var(--panel);
+}
