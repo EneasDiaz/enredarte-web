@@ -3014,6 +3014,22 @@ function getPublicArtistFromUrl() {
   );
 }
 
+function getPublicArtistApplications(artist) {
+  if (!artist) return [];
+
+  return getArtistPanelApplications(artist).filter((application) => {
+    return getArtistApplicationStatus(application) === "aprobada";
+  });
+}
+
+function getPublicArtistProposals(artist) {
+  if (!artist) return [];
+
+  return getArtistPanelProposals(artist).filter((proposal) => {
+    return proposal.status === "converted";
+  });
+}
+
 function renderPublicArtistProfile() {
   if (!publicArtistName) return;
 
@@ -3021,19 +3037,11 @@ function renderPublicArtistProfile() {
 
   if (!artist) return;
 
-  const applications = getArtistPanelApplications(artist);
-  const proposals = getArtistPanelProposals(artist);
+  const publicApplications = getPublicArtistApplications(artist);
+  const publicProposals = getPublicArtistProposals(artist);
 
-  const confirmedApplications = applications.filter((application) => {
-    return getArtistApplicationStatus(application) === "aprobada";
-  });
-
-  const convertedProposals = proposals.filter((proposal) => {
-    return proposal.status === "converted";
-  });
-
-  const confirmedCount =
-    confirmedApplications.length + convertedProposals.length;
+  const publicActivityCount =
+    publicApplications.length + publicProposals.length;
 
   document.title = `${artist.name} | enredARTE`;
 
@@ -3052,24 +3060,24 @@ function renderPublicArtistProfile() {
     artist.bio ||
     "Este perfil reúne información del artista y sus movimientos dentro de enredARTE.";
 
-  publicArtistApplicationsCount.textContent = applications.length;
-  publicArtistProposalsCount.textContent = proposals.length;
-  publicArtistConfirmedCount.textContent = confirmedCount;
+  publicArtistApplicationsCount.textContent = publicApplications.length;
+  publicArtistProposalsCount.textContent = publicProposals.length;
+  publicArtistConfirmedCount.textContent = publicActivityCount;
 
   if (!publicArtistActivity) return;
 
-  if (applications.length === 0 && proposals.length === 0) {
+  if (publicApplications.length === 0 && publicProposals.length === 0) {
     publicArtistActivity.innerHTML = `
       <article class="admin-opportunity">
         <div class="admin-opportunity-header">
           <div>
             <p class="section-label">actividad</p>
-            <h2>Todavía no hay movimientos públicos.</h2>
+            <h2>Todavía no hay participaciones públicas.</h2>
           </div>
         </div>
 
         <p class="empty-state">
-          Cuando este artista se postule o proponga una muestra, su actividad va a aparecer acá.
+          Cuando este artista participe de una convocatoria o una propuesta se convierta en muestra, va a aparecer acá.
         </p>
       </article>
     `;
@@ -3086,83 +3094,83 @@ function renderPublicArtistProfile() {
         </div>
 
         <div class="admin-opportunity-meta">
-          <span>${applications.length} postulaciones</span>
-          <span>${proposals.length} propuestas</span>
+          <span>${publicApplications.length} convocatorias</span>
+          <span>${publicProposals.length} muestras creadas</span>
         </div>
       </div>
 
       <div class="admin-applications">
-        ${applications
-      .map((application) => {
-        const status = getArtistApplicationStatus(application);
+        ${publicApplications
+          .map((application) => {
+          const status = getArtistApplicationStatus(application);
 
-        return `
-              <article class="admin-application">
-                <div class="admin-application-top">
-                  <div>
-                    <p class="section-label">postulación</p>
-                    <h3>${application.opportunityTitle}</h3>
+          return `
+                <article class="admin-application">
+                  <div class="admin-application-top">
+                    <div>
+                      <p class="section-label">convocatoria confirmada</p>
+                      <h3>${application.opportunityTitle}</h3>
 
-                    <div class="application-meta">
-                      <span>${application.discipline}</span>
-                      <span>${application.opportunityDate}</span>
+                      <div class="application-meta">
+                        <span>${application.discipline}</span>
+                        <span>${application.opportunityDate}</span>
+                      </div>
                     </div>
+
+                    <span class="artist-panel-status">
+                      ${status}
+                    </span>
                   </div>
 
-                  <span class="artist-panel-status">
-                    ${status}
-                  </span>
-                </div>
+                  <a
+                    class="button button-secondary"
+                    href="oportunidad.html?o=${application.opportunitySlug}"
+                  >
+                    Ver convocatoria
+                  </a>
+                </article>
+              `;
+        })
+        .join("")}
 
-                <a
-                  class="button button-secondary"
-                  href="oportunidad.html?o=${application.opportunitySlug}"
-                >
-                  Ver convocatoria
-                </a>
-              </article>
-            `;
-      })
-      .join("")}
+        ${publicProposals
+          .map((proposal) => {
+            const statusLabel = getProposalStatusLabel(proposal.status);
 
-        ${proposals
-      .map((proposal) => {
-        const statusLabel = getProposalStatusLabel(proposal.status);
+            return `
+                  <article class="admin-application">
+                    <div class="admin-application-top">
+                      <div>
+                        <p class="section-label">muestra creada</p>
+                        <h3>${proposal.title}</h3>
 
-        return `
-              <article class="admin-application">
-                <div class="admin-application-top">
-                  <div>
-                    <p class="section-label">propuesta de muestra</p>
-                    <h3>${proposal.title}</h3>
+                        <div class="application-meta">
+                          <span>${proposal.spaceName}</span>
+                          <span>${proposal.discipline}</span>
+                          <span>${proposal.date}</span>
+                        </div>
+                      </div>
 
-                    <div class="application-meta">
-                      <span>${proposal.spaceName}</span>
-                      <span>${proposal.discipline}</span>
-                      <span>${proposal.date}</span>
+                      <span class="artist-panel-status">
+                        ${statusLabel}
+                      </span>
                     </div>
-                  </div>
 
-                  <span class="artist-panel-status">
-                    ${statusLabel}
-                  </span>
-                </div>
+                    <p>${proposal.idea}</p>
 
-                <p>${proposal.idea}</p>
-
-                ${proposal.status === "converted"
-            ? `<a
-                        class="button button-secondary"
-                        href="oportunidad.html?o=${proposal.opportunitySlug}"
-                      >
-                        Ver convocatoria
-                      </a>`
-            : ""
-          }
-              </article>
-            `;
-      })
-      .join("")}
+                    ${proposal.status === "converted"
+                ? `<a
+                            class="button button-secondary"
+                            href="oportunidad.html?o=${proposal.opportunitySlug}"
+                          >
+                            Ver convocatoria
+                          </a>`
+                : ""
+              }
+                  </article>
+                `;
+          })
+          .join("")}
       </div>
     </article>
   `;
