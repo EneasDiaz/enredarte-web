@@ -219,6 +219,25 @@ function updateHomeSessionCtas() {
   }
 }
 
+function updateSessionSwitch() {
+  const currentUser = getCurrentUser();
+  const sessionSwitch = document.querySelector("[data-clear-session]");
+
+  if (!sessionSwitch) return;
+
+  if (!currentUser) {
+    sessionSwitch.hidden = true;
+    return;
+  }
+
+  sessionSwitch.hidden = false;
+
+  sessionSwitch.addEventListener("click", () => {
+    clearCurrentUser();
+    window.location.reload();
+  });
+}
+
 function getSavedSpaces() {
   const savedSpaces = localStorage.getItem("enredarteSpaces");
 
@@ -1143,6 +1162,7 @@ function renderFeaturedSpaces() {
 
 renderFeaturedSpaces();
 updateHomeSessionCtas();
+updateSessionSwitch();
 
 
 const applicationsList = document.querySelector("[data-applications-list]");

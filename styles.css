@@ -2368,3 +2368,26 @@ button.button {
 .profile-inline-link:hover span {
   opacity: 1;
 }
+
+.session-switch {
+  border: 1px solid rgba(245, 245, 240, 0.28);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--fg);
+  padding: 10px 16px;
+  font: inherit;
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+}
+
+.session-switch:hover {
+  border-color: var(--fg);
+}
+
+@media (max-width: 760px) {
+  .session-switch {
+    padding: 8px 12px;
+    font-size: 11px;
+  }
+}
