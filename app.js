@@ -1019,8 +1019,15 @@ function renderFeaturedSpaces() {
             </div>
           </div>
           <div class="space-card-actions">
-            <button
+            <a
               class="button button-secondary"
+              href="perfil-espacio.html?e=${createSlug(space.name)}"
+            >
+              Ver perfil
+            </a>
+
+            <button
+              class="button button-primary"
               type="button"
               data-open-proposal
               data-space-key="${createSlug(space.name)}"
@@ -3038,10 +3045,10 @@ function renderPublicArtistProfile() {
 
       <div class="admin-applications">
         ${applications
-          .map((application) => {
-            const status = getArtistApplicationStatus(application);
+      .map((application) => {
+        const status = getArtistApplicationStatus(application);
 
-            return `
+        return `
               <article class="admin-application">
                 <div class="admin-application-top">
                   <div>
@@ -3067,14 +3074,14 @@ function renderPublicArtistProfile() {
                 </a>
               </article>
             `;
-          })
-          .join("")}
+      })
+      .join("")}
 
         ${proposals
-          .map((proposal) => {
-            const statusLabel = getProposalStatusLabel(proposal.status);
+      .map((proposal) => {
+        const statusLabel = getProposalStatusLabel(proposal.status);
 
-            return `
+        return `
               <article class="admin-application">
                 <div class="admin-application-top">
                   <div>
@@ -3095,16 +3102,196 @@ function renderPublicArtistProfile() {
 
                 <p>${proposal.idea}</p>
 
-                ${
-                  proposal.status === "converted"
-                    ? `<a
+                ${proposal.status === "converted"
+            ? `<a
                         class="button button-secondary"
                         href="oportunidad.html?o=${proposal.opportunitySlug}"
                       >
                         Ver convocatoria
                       </a>`
-                    : ""
-                }
+            : ""
+          }
+              </article>
+            `;
+      })
+      .join("")}
+      </div>
+    </article>
+  `;
+}
+
+renderPublicArtistProfile();
+
+const publicSpaceName = document.querySelector("[data-space-public-name]");
+const publicSpaceType = document.querySelector("[data-space-public-type]");
+const publicSpaceDescription = document.querySelector(
+  "[data-space-public-description]"
+);
+const publicSpaceLocation = document.querySelector("[data-space-public-location]");
+const publicSpaceCapacity = document.querySelector("[data-space-public-capacity]");
+const publicSpaceDisciplines = document.querySelector(
+  "[data-space-public-disciplines]"
+);
+const publicSpaceAboutTitle = document.querySelector(
+  "[data-space-public-about-title]"
+);
+const publicSpaceAbout = document.querySelector("[data-space-public-about]");
+const publicSpaceOpportunitiesCount = document.querySelector(
+  "[data-space-public-opportunities-count]"
+);
+const publicSpaceProposalsCount = document.querySelector(
+  "[data-space-public-proposals-count]"
+);
+const publicSpacePrice = document.querySelector("[data-space-public-price]");
+const publicSpaceOpportunities = document.querySelector(
+  "[data-space-public-opportunities]"
+);
+const publicSpaceProposalButton = document.querySelector(
+  "[data-space-public-proposal-button]"
+);
+
+function getPublicSpaceSlug() {
+  const params = new URLSearchParams(window.location.search);
+
+  return params.get("e");
+}
+
+function getPublicSpaceFromUrl() {
+  const slug = getPublicSpaceSlug();
+
+  if (!slug) return featuredSpaces[0] || null;
+
+  return (
+    featuredSpaces.find((space) => createSlug(space.name) === slug) ||
+    featuredSpaces[0] ||
+    null
+  );
+}
+
+function renderPublicSpaceProfile() {
+  if (!publicSpaceName) return;
+
+  const space = getPublicSpaceFromUrl();
+
+  if (!space) return;
+
+  const spaceKey = createSlug(space.name);
+  const spaceOpportunities = getOpportunitiesBySpace(space.name);
+  const spaceProposals = getProposalsBySpace(spaceKey);
+
+  document.title = `${space.name} | enredARTE`;
+
+  publicSpaceName.textContent = space.name;
+  publicSpaceType.textContent = space.type || "espacio";
+  publicSpaceDescription.textContent =
+    space.description ||
+    "Un lugar disponible para activar muestras, convocatorias y encuentros culturales.";
+
+  publicSpaceLocation.textContent = `${space.neighborhood}, ${space.city}`;
+  publicSpaceCapacity.textContent = space.capacity || "capacidad a definir";
+  publicSpaceDisciplines.textContent =
+    space.disciplines || "disciplinas abiertas";
+
+  publicSpaceAboutTitle.textContent = `${space.name} como punto de encuentro.`;
+  publicSpaceAbout.textContent =
+    space.description ||
+    "Este perfil reúne información del espacio, sus características y las oportunidades activas dentro de enredARTE.";
+
+  publicSpaceOpportunitiesCount.textContent = spaceOpportunities.length;
+  publicSpaceProposalsCount.textContent = spaceProposals.length;
+  publicSpacePrice.textContent = space.price || "—";
+
+  if (publicSpaceProposalButton) {
+    publicSpaceProposalButton.setAttribute("data-open-proposal", "");
+    publicSpaceProposalButton.dataset.spaceKey = spaceKey;
+    publicSpaceProposalButton.dataset.spaceName = space.name;
+    publicSpaceProposalButton.dataset.spaceLocation = `${space.neighborhood}, ${space.city}`;
+  }
+
+  if (!publicSpaceOpportunities) return;
+
+  if (spaceOpportunities.length === 0) {
+    publicSpaceOpportunities.innerHTML = `
+      <article class="admin-opportunity">
+        <div class="admin-opportunity-header">
+          <div>
+            <p class="section-label">convocatorias</p>
+            <h2>Este espacio todavía no tiene convocatorias activas.</h2>
+          </div>
+        </div>
+
+        <p class="empty-state">
+          Mientras tanto, podés proponer una muestra para que el espacio la revise.
+        </p>
+      </article>
+    `;
+
+    return;
+  }
+
+  publicSpaceOpportunities.innerHTML = `
+    <article class="admin-opportunity">
+      <div class="admin-opportunity-header">
+        <div>
+          <p class="section-label">convocatorias</p>
+          <h2>Oportunidades activas en este espacio.</h2>
+        </div>
+
+        <div class="admin-opportunity-meta">
+          <span>${spaceOpportunities.length} convocatorias</span>
+        </div>
+      </div>
+
+      <div class="cards-grid">
+        ${spaceOpportunities
+          .map((opportunity) => {
+            const state = getOpportunityRuntimeState(opportunity);
+
+            const statusLabel = state.isFull
+              ? "completa"
+              : state.available === 1
+                ? "1 cupo"
+                : `${state.available} cupos`;
+
+            return `
+              <article class="opportunity-card ${
+                state.isFull ? "is-full" : ""
+              }">
+                <div class="card-top">
+                  <span>${opportunity.city}</span>
+                  <span>${opportunity.date}</span>
+                </div>
+
+                <h3>${opportunity.fullTitle || opportunity.title}</h3>
+
+                <p>${opportunity.description}</p>
+
+                <div class="card-meta">
+                  <div class="meta-row">
+                    <span>disciplinas</span>
+                    <strong>${
+                      opportunity.detailDiscipline ||
+                      opportunity.discipline.join(" / ")
+                    }</strong>
+                  </div>
+
+                  <div class="meta-row">
+                    <span>costo</span>
+                    <strong>${opportunity.cost}</strong>
+                  </div>
+
+                  <div class="meta-row">
+                    <span>estado</span>
+                    <strong>${statusLabel}</strong>
+                  </div>
+                </div>
+
+                <a
+                  class="button button-secondary"
+                  href="oportunidad.html?o=${opportunity.slug}"
+                >
+                  Ver convocatoria
+                </a>
               </article>
             `;
           })
@@ -3114,7 +3301,7 @@ function renderPublicArtistProfile() {
   `;
 }
 
-renderPublicArtistProfile();
+renderPublicSpaceProfile();
 
 const openSpaceOpportunityButton = document.querySelector(
   "[data-open-space-opportunity]"

@@ -1064,6 +1064,8 @@ button.button {
 /* Acciones de espacios */
 
 .space-card-actions {
+  display: grid;
+  gap: 10px;
   padding: 0 28px 28px;
 }
 
@@ -1976,6 +1978,8 @@ button.button {
   }
 
   .space-card-actions {
+    display: grid;
+    gap: 7px;
     padding: 0 11px 11px;
   }
 

@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Espacio | enredARTE</title>
+    <link rel="stylesheet" href="styles.css" />
+</head>
+
+<body>
+    <header class="site-header detail-header" data-header>
+        <a class="brand" href="index.html" aria-label="enredARTE">
+            <span>enred</span>
+            <strong>ARTE</strong>
+        </a>
+
+        <nav class="main-nav">
+            <a href="index.html#oportunidades">_oportunidades</a>
+            <a href="index.html#como-funciona">_cómo funciona</a>
+            <a href="index.html#artistas">_artistas</a>
+            <a href="index.html#espacios">_espacios</a>
+        </nav>
+
+        <button class="menu-button" type="button" data-menu-button aria-expanded="false">
+            menú
+        </button>
+    </header>
+
+    <main>
+        <section class="admin-hero artist-public-hero">
+            <a class="back-link" href="index.html#espacios">← volver a espacios</a>
+
+            <p class="section-label" data-space-public-type>
+                espacio
+            </p>
+
+            <h1 data-space-public-name>
+                Perfil de espacio.
+            </h1>
+
+            <p data-space-public-description>
+                Un lugar disponible para activar muestras, convocatorias y encuentros culturales.
+            </p>
+
+            <div class="artist-profile-meta artist-public-meta">
+                <span data-space-public-location>ubicación</span>
+                <span data-space-public-capacity>capacidad</span>
+                <span data-space-public-disciplines>disciplinas</span>
+            </div>
+
+            <div class="hero-actions">
+                <button class="button button-primary" type="button" data-space-public-proposal-button>
+                    Proponer una muestra
+                </button>
+            </div>
+        </section>
+
+        <section class="section artist-public-section">
+            <div class="artist-public-layout">
+                <article class="artist-profile-card">
+                    <p class="section-label">sobre el espacio</p>
+
+                    <h2 data-space-public-about-title>
+                        Un lugar para que el arte suceda.
+                    </h2>
+
+                    <p data-space-public-about>
+                        Este perfil reúne información del espacio, sus características y las oportunidades activas
+                        dentro de enredARTE.
+                    </p>
+                </article>
+
+                <div class="artist-public-side">
+                    <article class="admin-stat">
+                        <span>convocatorias</span>
+                        <strong data-space-public-opportunities-count>0</strong>
+                    </article>
+
+                    <article class="admin-stat">
+                        <span>propuestas</span>
+                        <strong data-space-public-proposals-count>0</strong>
+                    </article>
+
+                    <article class="admin-stat">
+                        <span>costo</span>
+                        <strong data-space-public-price>—</strong>
+                    </article>
+                </div>
+            </div>
+
+            <div class="artist-panel-block" data-space-public-opportunities>
+                <article class="admin-opportunity">
+                    <div class="admin-opportunity-header">
+                        <div>
+                            <p class="section-label">convocatorias</p>
+                            <h2>Oportunidades activas de este espacio.</h2>
+                        </div>
+                    </div>
+
+                    <p class="empty-state">
+                        Cuando este espacio tenga convocatorias publicadas, van a aparecer acá.
+                    </p>
+                </article>
+            </div>
+        </section>
+    </main>
+
+    <footer class="site-footer">
+        <p>
+            <span>enred</span>
+            <strong>ARTE</strong>
+        </p>
+
+        <p>Todo arte necesita un lugar.</p>
+    </footer>
+
+    <div class="modal" data-proposal-modal aria-hidden="true">
+        <div class="modal-backdrop" data-close-proposal></div>
+
+        <div class="modal-panel proposal-panel" role="dialog" aria-modal="true" aria-labelledby="proposal-title">
+            <button class="modal-close" type="button" data-close-proposal>
+                cerrar
+            </button>
+
+            <p class="section-label">propuesta de muestra</p>
+
+            <h2 id="proposal-title">Proponer una muestra</h2>
+
+            <p>
+                Contanos la idea para este espacio. El lugar va a poder revisarla y decidir si quiere avanzar.
+            </p>
+
+            <div class="proposal-space-card">
+                <span>espacio seleccionado</span>
+                <strong data-proposal-space-name></strong>
+            </div>
+
+            <form class="modal-form" data-proposal-form>
+                <input type="hidden" name="spaceKey" data-proposal-space-key />
+                <input type="hidden" name="spaceName" data-proposal-space-name-input />
+
+                <label>
+                    Título de la propuesta
+                    <input type="text" name="proposalTitle" placeholder="Ej: Muestra colectiva de fotografía urbana"
+                        required />
+                </label>
+
+                <label>
+                    Disciplina principal
+                    <select name="discipline" required>
+                        <option value="">Seleccionar</option>
+                        <option value="Pintura">Pintura</option>
+                        <option value="Fotografía">Fotografía</option>
+                        <option value="Ilustración">Ilustración</option>
+                        <option value="Performance">Performance</option>
+                        <option value="Música">Música</option>
+                        <option value="Multidisciplina">Multidisciplina</option>
+                    </select>
+                </label>
+
+                <label>
+                    Idea de la muestra
+                    <textarea name="idea" rows="4"
+                        placeholder="Contá qué querés hacer, qué tipo de obra se vería y por qué este espacio te interesa."
+                        required></textarea>
+                </label>
+
+                <label>
+                    Fecha tentativa
+                    <input type="text" name="date" placeholder="Ej: septiembre, un sábado a la tarde, a coordinar..." />
+                </label>
+
+                <label>
+                    Cantidad estimada de artistas
+                    <input type="number" name="artistCount" min="1" placeholder="Ej: 4" />
+                </label>
+
+                <label>
+                    Portfolio o Instagram
+                    <input type="text" name="portfolio" placeholder="@usuario o link" required />
+                </label>
+
+                <button class="button button-primary" type="submit">
+                    Enviar propuesta
+                </button>
+
+                <p class="form-success" data-proposal-success hidden>
+                    Listo. Tu propuesta fue enviada al espacio para revisión.
+                </p>
+            </form>
+        </div>
+    </div>
+
+    <div class="modal" data-artist-modal aria-hidden="true">
+        <div class="modal-backdrop" data-close-artist></div>
+
+        <div class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="artist-title">
+            <button class="modal-close" type="button" data-close-artist>
+                cerrar
+            </button>
+
+            <p class="section-label">crear perfil de artista</p>
+
+            <h2 id="artist-title">Mostranos qué hacés.</h2>
+
+            <form class="apply-form" data-artist-form>
+                <label>
+                    Nombre artístico o nombre completo
+                    <input type="text" name="artistName" placeholder="Ej: Lucía Molina" required />
+                </label>
+
+                <label>
+                    Disciplina principal
+                    <select name="discipline" required>
+                        <option value="">Elegí una opción</option>
+                        <option>Pintura</option>
+                        <option>Fotografía</option>
+                        <option>Ilustración</option>
+                        <option>Música</option>
+                        <option>Diseño</option>
+                        <option>Moda</option>
+                        <option>Performance</option>
+                        <option>Cine</option>
+                        <option>Cerámica</option>
+                        <option>Tattoo</option>
+                        <option>Danza</option>
+                        <option>Literatura</option>
+                        <option>Teatro</option>
+                        <option>Escultura</option>
+                        <option>Muralismo</option>
+                        <option>Arte digital</option>
+                        <option>Otra</option>
+                    </select>
+                </label>
+
+                <label>
+                    Ciudad / barrio
+                    <input type="text" name="location" placeholder="Ej: Palermo, CABA" required />
+                </label>
+
+                <label>
+                    Instagram
+                    <input type="text" name="instagram" placeholder="@tuusuario" />
+                </label>
+
+                <label>
+                    Portfolio
+                    <input type="text" name="portfolio" placeholder="Link a Behance, web, drive o similar" />
+                </label>
+
+                <label>
+                    Bio breve
+                    <textarea name="bio" rows="4" placeholder="Contá quién sos y qué tipo de obra hacés"></textarea>
+                </label>
+
+                <label>
+                    ¿Qué estás buscando?
+                    <select name="goal" required>
+                        <option value="">Elegí una opción</option>
+                        <option>Sumarme a una muestra colectiva</option>
+                        <option>Encontrar un espacio para exponer</option>
+                        <option>Conectar con otros artistas</option>
+                        <option>Difundir mi trabajo</option>
+                        <option>Todavía estoy explorando</option>
+                    </select>
+                </label>
+
+                <button class="button button-primary" type="submit">
+                    Crear perfil
+                </button>
+
+                <p class="form-success" data-artist-success>
+                    Listo. Tu perfil ya empezó a enredarse. En el buen sentido.
+                </p>
+            </form>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+
+</html>
