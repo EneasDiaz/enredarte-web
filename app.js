@@ -931,7 +931,17 @@ function renderOpportunityDetail() {
   opportunityStatus.textContent = `${opportunity.confirmed} de ${opportunity.totalSpots} confirmados`;
   opportunitySpots.textContent = `Faltan ${opportunity.availableSpots} artistas para confirmar la muestra.`;
 
-  opportunityPlace.textContent = opportunity.title.split(" busca ")[0];
+  const opportunitySpaceName = opportunity.title;
+
+  opportunityPlace.innerHTML = `
+    <a
+      class="profile-inline-link"
+      href="perfil-espacio.html?e=${createSlug(opportunitySpaceName)}"
+    >
+      ${opportunitySpaceName}
+      <span aria-hidden="true">↗</span>
+    </a>
+  `;
   opportunityCity.textContent = opportunity.city;
   opportunityDate.textContent = opportunity.date;
   opportunityTime.textContent = opportunity.time;
@@ -3244,19 +3254,18 @@ function renderPublicSpaceProfile() {
 
       <div class="cards-grid">
         ${spaceOpportunities
-          .map((opportunity) => {
-            const state = getOpportunityRuntimeState(opportunity);
+      .map((opportunity) => {
+        const state = getOpportunityRuntimeState(opportunity);
 
-            const statusLabel = state.isFull
-              ? "completa"
-              : state.available === 1
-                ? "1 cupo"
-                : `${state.available} cupos`;
+        const statusLabel = state.isFull
+          ? "completa"
+          : state.available === 1
+            ? "1 cupo"
+            : `${state.available} cupos`;
 
-            return `
-              <article class="opportunity-card ${
-                state.isFull ? "is-full" : ""
-              }">
+        return `
+              <article class="opportunity-card ${state.isFull ? "is-full" : ""
+          }">
                 <div class="card-top">
                   <span>${opportunity.city}</span>
                   <span>${opportunity.date}</span>
@@ -3269,10 +3278,9 @@ function renderPublicSpaceProfile() {
                 <div class="card-meta">
                   <div class="meta-row">
                     <span>disciplinas</span>
-                    <strong>${
-                      opportunity.detailDiscipline ||
-                      opportunity.discipline.join(" / ")
-                    }</strong>
+                    <strong>${opportunity.detailDiscipline ||
+          opportunity.discipline.join(" / ")
+          }</strong>
                   </div>
 
                   <div class="meta-row">
@@ -3294,8 +3302,8 @@ function renderPublicSpaceProfile() {
                 </a>
               </article>
             `;
-          })
-          .join("")}
+      })
+      .join("")}
       </div>
     </article>
   `;
