@@ -30,7 +30,6 @@
             <a href="index.html">_home</a>
             <a href="index.html#oportunidades">_oportunidades</a>
             <a href="index.html#espacios-abiertos">_espacios</a>
-            <a href="admin.html">_admin enredARTE</a>
         </nav>
 
         <button class="menu-button" type="button" aria-expanded="false" data-menu-button>
@@ -53,6 +52,10 @@
                     Espacio
                     <select data-space-panel-select></select>
                 </label>
+
+                <button class="button button-primary" type="button" data-open-space-opportunity>
+                    Crear convocatoria
+                </button>
             </div>
         </section>
 
@@ -79,12 +82,12 @@
                 cerrar
             </button>
 
-            <p class="section-label">armar convocatoria</p>
+            <p class="section-label">propuesta aceptada</p>
 
-            <h2 id="convert-proposal-title">Convertir en convocatoria</h2>
+            <h2 id="convert-proposal-title">Armar convocatoria</h2>
 
             <p>
-                La propuesta fue interesante. Ahora completá los datos necesarios para
+                Esta propuesta ya fue aceptada. Ahora completá los datos necesarios para
                 publicarla como convocatoria abierta.
             </p>
 
@@ -151,7 +154,82 @@
             </form>
         </div>
     </div>
+    <div class="modal" data-space-opportunity-modal aria-hidden="true">
+        <div class="modal-backdrop" data-close-space-opportunity></div>
 
+        <div class="modal-panel proposal-panel" role="dialog" aria-modal="true"
+            aria-labelledby="space-opportunity-title">
+            <button class="modal-close" type="button" data-close-space-opportunity>
+                cerrar
+            </button>
+
+            <p class="section-label">nueva convocatoria</p>
+
+            <h2 id="space-opportunity-title">Crear convocatoria</h2>
+
+            <p>
+                Publicá una oportunidad para que artistas puedan postularse a tu espacio.
+            </p>
+
+            <div class="proposal-space-card">
+                <span>espacio</span>
+                <strong data-space-opportunity-name></strong>
+            </div>
+
+            <form class="modal-form" data-space-opportunity-form>
+                <label>
+                    Título de la convocatoria
+                    <input type="text" name="opportunityTitle" placeholder="Ej: Muestra colectiva de pintura emergente"
+                        required />
+                </label>
+
+                <label>
+                    Disciplina
+                    <input type="text" name="discipline" placeholder="Ej: Pintura" required />
+                </label>
+
+                <label>
+                    Descripción
+                    <textarea name="description" rows="4"
+                        placeholder="Contá qué tipo de artistas buscás, cuál es la propuesta y qué incluye el espacio."
+                        required></textarea>
+                </label>
+
+                <label>
+                    Fecha
+                    <input type="text" name="date" placeholder="Ej: 24 de septiembre" required />
+                </label>
+
+                <label>
+                    Horario
+                    <input type="text" name="time" placeholder="Ej: 18 a 22 hs" required />
+                </label>
+
+                <label>
+                    Cupos totales
+                    <input type="number" name="totalSpots" min="1" placeholder="Ej: 6" required />
+                </label>
+
+                <label>
+                    Costo total del espacio
+                    <input type="text" name="totalCost" placeholder="Ej: AR$ 150.000" required />
+                </label>
+
+                <label>
+                    Costo por artista
+                    <input type="text" name="artistCost" placeholder="Ej: AR$ 25.000" required />
+                </label>
+
+                <button class="button button-primary" type="submit">
+                    Publicar convocatoria
+                </button>
+
+                <p class="form-success" data-space-opportunity-success hidden>
+                    Listo. La convocatoria ya fue publicada.
+                </p>
+            </form>
+        </div>
+    </div>
     <script src="app.js"></script>
 </body>
 

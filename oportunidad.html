@@ -245,6 +245,74 @@
             </form>
         </div>
     </div>
+    <div class="modal" data-artist-modal aria-hidden="true">
+        <div class="modal-backdrop" data-close-artist></div>
+
+        <div class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="artist-title">
+            <button class="modal-close" type="button" data-close-artist>
+                cerrar
+            </button>
+
+            <p class="section-label">perfil de artista</p>
+
+            <h2 id="artist-title">Creá tu perfil.</h2>
+
+            <p>
+                Para postularte a una convocatoria, primero necesitamos saber quién sos y qué hacés.
+            </p>
+
+            <form class="apply-form" data-artist-form>
+                <label>
+                    Nombre artístico o nombre completo
+                    <input type="text" name="artistName" placeholder="Ej: Lucía Molina" required />
+                </label>
+
+                <label>
+                    Disciplina principal
+                    <select name="discipline" required>
+                        <option value="">Elegí una opción</option>
+                        <option>Pintura</option>
+                        <option>Fotografía</option>
+                        <option>Ilustración</option>
+                        <option>Escultura</option>
+                        <option>Arte digital</option>
+                        <option>Performance</option>
+                        <option>Música</option>
+                        <option>Otra</option>
+                    </select>
+                </label>
+
+                <label>
+                    Ciudad
+                    <input type="text" name="location" placeholder="Ej: CABA" required />
+                </label>
+
+                <label>
+                    Instagram
+                    <input type="text" name="instagram" placeholder="@tuusuario" />
+                </label>
+
+                <label>
+                    Portfolio
+                    <input type="text" name="portfolio" placeholder="Link a portfolio o Behance" />
+                </label>
+
+                <label>
+                    Bio breve
+                    <textarea name="bio" rows="4"
+                        placeholder="Contá qué hacés, qué tipo de obra trabajás o qué estás buscando."></textarea>
+                </label>
+
+                <button class="button button-primary" type="submit">
+                    Crear perfil
+                </button>
+
+                <p class="form-success" data-artist-success>
+                    Listo. Tu perfil ya está creado.
+                </p>
+            </form>
+        </div>
+    </div>
     <script src="app.js"></script>
 </body>
 

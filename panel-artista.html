@@ -4,10 +4,11 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Panel admin | enredARTE</title>
+
+    <title>Panel del artista | enredARTE</title>
 
     <meta name="description"
-        content="Panel interno de enredARTE para revisar postulaciones, aprobar artistas y gestionar convocatorias." />
+        content="Panel para que artistas vean sus postulaciones, propuestas y perfil en enredARTE." />
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -19,7 +20,7 @@
     <link rel="stylesheet" href="styles.css" />
 </head>
 
-<body data-page="admin">
+<body data-page="panel-artista">
     <header class="site-header detail-header" data-header>
         <a class="brand" href="index.html" aria-label="Volver al inicio">
             <span>enred</span><strong>ARTE</strong>
@@ -27,8 +28,8 @@
 
         <nav class="main-nav" aria-label="Navegación principal">
             <a href="index.html">_home</a>
-            <a href="panel-artista.html">_panel artista</a>
-            <a href="panel-espacio.html">_panel espacio</a>
+            <a href="index.html#oportunidades">_oportunidades</a>
+            <a href="index.html#espacios-abiertos">_espacios</a>
         </nav>
 
         <button class="menu-button" type="button" aria-expanded="false" data-menu-button>
@@ -37,31 +38,37 @@
     </header>
 
     <main>
-        <section class="admin-hero" aria-labelledby="admin-title">
-            <p class="section-label">panel interno</p>
+        <section class="admin-hero" aria-labelledby="artist-panel-title">
+            <p class="section-label">panel del artista</p>
 
-            <h1 id="admin-title">Gestión de convocatorias.</h1>
+            <h1 id="artist-panel-title">Seguí tus movimientos.</h1>
 
             <p>
-                Revisá postulaciones, aprobá artistas y seguí el estado de cada muestra.
+                Revisá tus postulaciones, tus propuestas de muestra y el estado de cada oportunidad.
             </p>
 
-            <button class="button button-secondary admin-reset-button" type="button" data-reset-demo>
-                Limpiar datos de prueba
-            </button>
+            <div class="space-panel-controls">
+                <label>
+                    Artista
+                    <select data-artist-panel-select></select>
+                </label>
+            </div>
         </section>
 
         <section class="section admin-section">
-            <div class="admin-summary" data-admin-summary></div>
+            <div class="admin-summary" data-artist-panel-summary></div>
 
-            <div class="admin-pending-spaces" data-admin-pending-spaces></div>
+            <div class="artist-panel-profile" data-artist-panel-profile></div>
 
+            <div class="artist-panel-block" data-artist-panel-applications></div>
+
+            <div class="artist-panel-block" data-artist-panel-proposals></div>
         </section>
     </main>
 
     <footer class="site-footer">
         <p><span>enred</span><strong>ARTE</strong></p>
-        <p>Panel interno de gestión.</p>
+        <p>Panel de seguimiento para artistas.</p>
     </footer>
 
     <script src="app.js"></script>

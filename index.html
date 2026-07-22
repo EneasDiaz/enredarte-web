@@ -25,7 +25,7 @@
       <a href="#oportunidades">_oportunidades</a>
       <a href="#como-funciona">_cómo funciona</a>
       <a href="#artistas">_artistas</a>
-      <a href="#espacios">_espacios</a>
+      <a href="#espacios-abiertos">_espacios</a>
     </nav>
 
     <button class="menu-button" type="button" aria-expanded="false" data-menu-button>
@@ -175,7 +175,7 @@
           Publicá capacidad, fechas, rubros posibles y costo para recibir propuestas artísticas.
         </p>
         <button class="button button-primary" type="button" data-open-space>
-          Publicar mi espacio
+          Solicitar alta de espacio
         </button>
       </article>
     </section>
@@ -190,7 +190,7 @@
         <li>ilustración</li>
         <li>fotografía</li>
         <li>música</li>
-        <li>ropa</li>
+        <li>diseño textil</li>
         <li>tatuajes</li>
         <li>escultura</li>
         <li>literatura</li>
@@ -200,9 +200,18 @@
   </main>
 
   <footer class="site-footer">
-    <p><span>enred</span><strong>ARTE</strong></p>
-    <p>Si es arte, tiene lugar.</p>
-    <a href="mailto:hola@enredarte.com">hola@enredarte.com</a>
+    <div>
+      <p><span>enred</span><strong>ARTE</strong></p>
+      <p>Todo arte necesita un lugar.</p>
+    </div>
+
+    <div class="demo-links">
+      <span>accesos de demo</span>
+
+      <a href="panel-artista.html">Panel artista</a>
+      <a href="panel-espacio.html">Panel espacio</a>
+      <a href="admin.html">Admin enredARTE</a>
+    </div>
   </footer>
 
   <div class="modal" data-space-modal aria-hidden="true">
@@ -213,9 +222,9 @@
         cerrar
       </button>
 
-      <p class="section-label">publicar un espacio</p>
+      <p class="section-label">alta de espacio</p>
 
-      <h2 id="space-title">Contanos qué lugar tenés.</h2>
+      <h2 id="space-title">Solicitá el alta de tu espacio.</h2>
 
       <form class="apply-form" data-space-form>
         <label>
@@ -401,86 +410,6 @@
     </div>
   </div>
 
-  <div class="modal" data-create-opportunity-modal aria-hidden="true">
-    <div class="modal-backdrop" data-close-create-opportunity></div>
-
-    <div class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="create-opportunity-title">
-      <button class="modal-close" type="button" data-close-create-opportunity>
-        cerrar
-      </button>
-
-      <p class="section-label">crear convocatoria</p>
-
-      <h2 id="create-opportunity-title">Abrí tu espacio al arte.</h2>
-
-      <form class="apply-form" data-create-opportunity-form>
-        <label>
-          Espacio
-          <input type="text" name="spaceName" data-create-opportunity-space placeholder="Ej: Galería Palermo"
-            required />
-        </label>
-
-        <label>
-          Ciudad / barrio
-          <input type="text" name="location" data-create-opportunity-location placeholder="Ej: Palermo, CABA"
-            required />
-        </label>
-
-        <label>
-          Título de la convocatoria
-          <input type="text" name="title" placeholder="Ej: busca artistas visuales" required />
-        </label>
-
-        <label>
-          Disciplinas buscadas
-          <input type="text" name="disciplines" placeholder="Ej: pintura, fotografía, ilustración" required />
-        </label>
-
-        <label>
-          Fecha
-          <input type="text" name="date" placeholder="Ej: 14 AGO" required />
-        </label>
-
-        <label>
-          Horario
-          <input type="text" name="time" placeholder="Ej: 19 a 23 h" required />
-        </label>
-
-        <label>
-          Costo total
-          <input type="text" name="totalCost" placeholder="Ej: $240.000" required />
-        </label>
-
-        <label>
-          Costo por artista
-          <input type="text" name="artistCost" placeholder="Ej: $40.000" required />
-        </label>
-
-        <label>
-          Cupos totales
-          <input type="number" name="totalSpots" min="1" placeholder="Ej: 6" required />
-        </label>
-
-        <label>
-          Artistas ya confirmados
-          <input type="number" name="confirmed" min="0" placeholder="Ej: 2" required />
-        </label>
-
-        <label>
-          Descripción
-          <textarea name="description" rows="4" placeholder="Contá qué tipo de muestra imaginás" required></textarea>
-        </label>
-
-        <button class="button button-primary" type="submit">
-          Publicar convocatoria
-        </button>
-
-        <p class="form-success" data-create-opportunity-success>
-          Listo. La convocatoria ya está en oportunidades abiertas. El arte no espera, claramente.
-        </p>
-      </form>
-    </div>
-  </div>
 
   <div class="modal" data-proposal-modal aria-hidden="true">
     <div class="modal-backdrop" data-close-proposal></div>

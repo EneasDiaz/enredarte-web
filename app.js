@@ -593,6 +593,28 @@ const openApplyButtons = document.querySelectorAll("[data-open-apply]");
 const closeApplyButtons = document.querySelectorAll("[data-close-apply]");
 const applyForm = document.querySelector("[data-apply-form]");
 const formSuccess = document.querySelector("[data-form-success]");
+let pendingApplyAfterArtist = false;
+
+function fillApplyFormWithCurrentArtist() {
+  if (!applyForm) return;
+
+  const currentArtist = getPrototypeCurrentArtist();
+
+  if (!currentArtist) return;
+
+  if (applyForm.elements.name) {
+    applyForm.elements.name.value = currentArtist.name || "";
+  }
+
+  if (applyForm.elements.discipline) {
+    applyForm.elements.discipline.value = currentArtist.discipline || "";
+  }
+
+  if (applyForm.elements.portfolio) {
+    applyForm.elements.portfolio.value =
+      currentArtist.portfolio || currentArtist.instagram || "";
+  }
+}
 
 function openApplyModal() {
   if (!applyModal) return;
@@ -603,6 +625,23 @@ function openApplyModal() {
   if (state.isFull) {
     alert("Esta convocatoria ya completó sus cupos.");
     return;
+  }
+
+  if (!hasArtistProfileCreated()) {
+    pendingApplyAfterArtist = true;
+
+    alert(
+      "Para sumarte a una convocatoria primero necesitás crear tu perfil de artista."
+    );
+
+    openArtistModal();
+
+    return;
+  }
+
+  if (applyForm) {
+    applyForm.reset();
+    fillApplyFormWithCurrentArtist();
   }
 
   applyModal.classList.add("is-open");
@@ -634,6 +673,15 @@ if (applyForm) {
   applyForm.addEventListener("submit", (event) => {
     event.preventDefault();
 
+    const currentArtist = getPrototypeCurrentArtist();
+
+    if (!currentArtist) {
+      pendingApplyAfterArtist = true;
+      closeApplyModal();
+      openArtistModal();
+      return;
+    }
+
     const opportunity = getOpportunityFromUrl();
     const state = getOpportunityRuntimeState(opportunity);
 
@@ -649,9 +697,13 @@ if (applyForm) {
     const slug = getCurrentOpportunitySlug();
 
     const newApplication = {
-      name: applicationData.name,
-      discipline: applicationData.discipline,
-      portfolio: applicationData.portfolio,
+      artistId: currentArtist.id || createSlug(currentArtist.name),
+      name: currentArtist.name,
+      discipline: currentArtist.discipline,
+      portfolio:
+        currentArtist.portfolio ||
+        currentArtist.instagram ||
+        applicationData.portfolio,
       message: applicationData.message,
       createdAt: new Date().toISOString(),
     };
@@ -740,9 +792,8 @@ if (spaceForm) {
 
     console.log("Nuevo espacio:", newSpace);
 
-    featuredSpaces.unshift(newSpace);
     saveSpace(newSpace);
-    renderFeaturedSpaces();
+
 
     spaceForm.reset();
 
@@ -812,6 +863,7 @@ if (artistForm) {
     const artistData = Object.fromEntries(formData.entries());
 
     const newArtist = {
+      id: createSlug(`${artistData.artistName}-${Date.now()}`),
       name: artistData.artistName,
       discipline: artistData.discipline,
       city: artistData.location,
@@ -820,6 +872,7 @@ if (artistForm) {
         artistData.bio ||
         `Artista de ${artistData.discipline.toLowerCase()} buscando nuevos espacios para mostrar su obra.`,
       instagram: artistData.instagram || artistData.portfolio || "portfolio pendiente",
+      portfolio: artistData.portfolio || artistData.instagram || "portfolio pendiente",
       initials: getInitials(artistData.artistName),
     };
 
@@ -874,7 +927,7 @@ function renderOpportunityDetail() {
 
   opportunityTitle.textContent = opportunity.fullTitle || opportunity.title;
   opportunityDescription.textContent =
-  opportunity.detailDescription || opportunity.description;
+    opportunity.detailDescription || opportunity.description;
   opportunityStatus.textContent = `${opportunity.confirmed} de ${opportunity.totalSpots} confirmados`;
   opportunitySpots.textContent = `Faltan ${opportunity.availableSpots} artistas para confirmar la muestra.`;
 
@@ -883,7 +936,7 @@ function renderOpportunityDetail() {
   opportunityDate.textContent = opportunity.date;
   opportunityTime.textContent = opportunity.time;
   opportunityDiscipline.textContent =
-  opportunity.detailDiscipline || opportunity.discipline.join(" / ");
+    opportunity.detailDiscipline || opportunity.discipline.join(" / ");
   opportunityTotalCost.textContent = opportunity.totalCost;
   opportunityArtistCost.textContent = opportunity.cost;
   opportunityAvailable.textContent = `${opportunity.availableSpots} disponibles`;
@@ -985,128 +1038,6 @@ function renderFeaturedSpaces() {
 
 renderFeaturedSpaces();
 
-const createOpportunityModal = document.querySelector(
-  "[data-create-opportunity-modal]"
-);
-const createOpportunityForm = document.querySelector(
-  "[data-create-opportunity-form]"
-);
-const closeCreateOpportunityButtons = document.querySelectorAll(
-  "[data-close-create-opportunity]"
-);
-const createOpportunitySpaceInput = document.querySelector(
-  "[data-create-opportunity-space]"
-);
-const createOpportunityLocationInput = document.querySelector(
-  "[data-create-opportunity-location]"
-);
-const createOpportunitySuccess = document.querySelector(
-  "[data-create-opportunity-success]"
-);
-
-function openCreateOpportunityModal(space = {}) {
-  if (!createOpportunityModal) return;
-
-  createOpportunityModal.classList.add("is-open");
-  createOpportunityModal.setAttribute("aria-hidden", "false");
-  document.body.style.overflow = "hidden";
-
-  if (createOpportunitySpaceInput && space.name) {
-    createOpportunitySpaceInput.value = space.name;
-  }
-
-  if (createOpportunityLocationInput && space.location) {
-    createOpportunityLocationInput.value = space.location;
-  }
-
-  if (createOpportunitySuccess) {
-    createOpportunitySuccess.classList.remove("is-visible");
-  }
-}
-
-function closeCreateOpportunityModal() {
-  if (!createOpportunityModal) return;
-
-  createOpportunityModal.classList.remove("is-open");
-  createOpportunityModal.setAttribute("aria-hidden", "true");
-  document.body.style.overflow = "";
-}
-
-if (spaceGrid) {
-  spaceGrid.addEventListener("click", (event) => {
-    const button = event.target.closest("[data-open-create-opportunity]");
-
-    if (!button) return;
-
-    openCreateOpportunityModal({
-      name: button.dataset.spaceName,
-      location: button.dataset.spaceLocation,
-      price: button.dataset.spacePrice,
-    });
-  });
-}
-
-closeCreateOpportunityButtons.forEach((button) => {
-  button.addEventListener("click", closeCreateOpportunityModal);
-});
-
-if (createOpportunityForm) {
-  createOpportunityForm.addEventListener("submit", (event) => {
-    event.preventDefault();
-
-    const formData = new FormData(createOpportunityForm);
-    const data = Object.fromEntries(formData.entries());
-
-    const totalSpots = Number(data.totalSpots);
-    const confirmed = Number(data.confirmed);
-    const availableSpots = Math.max(totalSpots - confirmed, 0);
-
-    const disciplineList = data.disciplines
-      .split(",")
-      .map((item) => item.trim().toLowerCase())
-      .filter(Boolean);
-
-    const newOpportunity = {
-      slug: createSlug(`${data.spaceName}-${data.title}-${Date.now()}`),
-      title: data.spaceName,
-      fullTitle: `${data.spaceName} ${data.title}.`,
-      city: data.location,
-      neighborhood: "nuevo espacio",
-      discipline: disciplineList,
-      detailDiscipline: disciplineList
-        .map((item) => item.charAt(0).toUpperCase() + item.slice(1))
-        .join(" / "),
-      description: data.description,
-      detailDescription: data.description,
-      date: data.date,
-      time: data.time,
-      cost: data.artistCost,
-      totalCost: data.totalCost,
-      confirmed,
-      totalSpots,
-      availableSpots,
-      spots: `${availableSpots} cupos`,
-    };
-
-    console.log("Nueva convocatoria:", newOpportunity);
-
-    opportunities.unshift(newOpportunity);
-    saveOpportunity(newOpportunity);
-    renderCards(opportunities);
-
-    createOpportunityForm.reset();
-
-    if (createOpportunitySuccess) {
-      createOpportunitySuccess.classList.add("is-visible");
-    }
-  });
-}
-
-document.addEventListener("keydown", (event) => {
-  if (event.key === "Escape") {
-    closeCreateOpportunityModal();
-  }
-});
 
 const applicationsList = document.querySelector("[data-applications-list]");
 const applicationsCount = document.querySelector("[data-applications-count]");
@@ -1124,7 +1055,11 @@ function renderApplications() {
       (item) => item.createdAt === application.createdAt
     );
 
-    return !isRejected;
+    const isApproved = approvedArtists.some(
+      (artist) => artist.createdAt === application.createdAt
+    );
+
+    return !isRejected && !isApproved;
   });
 
   if (applicationsCount) {
@@ -1163,18 +1098,16 @@ function renderApplications() {
             </div>
           </div>
 
-          ${
-            application.message
-              ? `<p>“${application.message}”</p>`
-              : `<p>Sin mensaje adicional.</p>`
-          }
+          ${application.message
+          ? `<p>“${application.message}”</p>`
+          : `<p>Sin mensaje adicional.</p>`
+        }
 
           <div class="application-actions">
-            ${
-              isApproved
-                ? `<span class="application-status">aprobada</span>`
-                : `<span class="application-status">pendiente de revisión</span>`
-            }
+            ${isApproved
+          ? `<span class="application-status">aprobada</span>`
+          : `<span class="application-status">pendiente de revisión</span>`
+        }
           </div>
         </article>
       `;
@@ -1267,7 +1200,9 @@ function updateOpportunityStatusWithApprovals() {
 
   opportunitySpots.textContent = state.isFull
     ? "La muestra ya completó sus cupos."
-    : `Faltan ${state.available} artistas para confirmar la muestra.`;
+    : state.available === 1
+      ? "Falta 1 artista para confirmar la muestra."
+      : `Faltan ${state.available} artistas para confirmar la muestra.`;
 
   opportunityAvailable.textContent =
     state.available === 1
@@ -1303,7 +1238,21 @@ function renderAdminPendingSpaces() {
   const pendingSpaces = getPendingSpaces();
 
   if (pendingSpaces.length === 0) {
-    adminPendingSpaces.innerHTML = "";
+    adminPendingSpaces.innerHTML = `
+    <section class="admin-opportunity">
+      <div class="admin-opportunity-header">
+        <div>
+          <p class="section-label">espacios pendientes</p>
+          <h2>No hay espacios esperando aprobación.</h2>
+        </div>
+      </div>
+
+      <p class="empty-state">
+        Cuando un espacio solicite el alta, va a aparecer acá para que puedas revisarlo.
+      </p>
+    </section>
+  `;
+
     return;
   }
 
@@ -1322,8 +1271,8 @@ function renderAdminPendingSpaces() {
 
       <div class="admin-applications">
         ${pendingSpaces
-          .map(
-            (space) => `
+      .map(
+        (space) => `
               <article class="admin-application">
                 <div class="admin-application-top">
                   <div>
@@ -1349,8 +1298,8 @@ function renderAdminPendingSpaces() {
                 <p>${space.description}</p>
               </article>
             `
-          )
-          .join("")}
+      )
+      .join("")}
       </div>
     </section>
   `;
@@ -1398,12 +1347,12 @@ function renderAdminSummary() {
     </article>
 
     <article class="admin-stat">
-      <span>convocatorias</span>
+      <span>convocatorias publicadas</span>
       <strong>${totalOpportunities}</strong>
     </article>
 
     <article class="admin-stat">
-      <span>artistas</span>
+      <span>artistas registrados</span>
       <strong>${totalArtists}</strong>
     </article>
   `;
@@ -1446,19 +1395,18 @@ function renderAdminDashboard() {
           </div>
 
           <div class="admin-applications">
-            ${
-              applications.length === 0
-                ? `<p class="empty-state">No hay postulaciones todavía.</p>`
-                : applications
-                    .map((application) => {
-                      const isApproved = approvedArtists.some(
-                        (artist) => artist.createdAt === application.createdAt
-                      );
-                      const isRejected = rejectedApplications.some(
-                        (item) => item.createdAt === application.createdAt
-                      );
+            ${applications.length === 0
+          ? `<p class="empty-state">No hay postulaciones todavía.</p>`
+          : applications
+            .map((application) => {
+              const isApproved = approvedArtists.some(
+                (artist) => artist.createdAt === application.createdAt
+              );
+              const isRejected = rejectedApplications.some(
+                (item) => item.createdAt === application.createdAt
+              );
 
-                      return `
+              return `
                         <article class="admin-application">
                           <div class="admin-application-top">
                             <div>
@@ -1470,9 +1418,8 @@ function renderAdminDashboard() {
                               </div>
                             </div>
 
-                            ${
-                              isApproved
-                                ? `<div class="admin-actions">
+                            ${isApproved
+                  ? `<div class="admin-actions">
                                     <span class="application-status">aprobada</span>
 
                                     <button
@@ -1485,8 +1432,8 @@ function renderAdminDashboard() {
                                       Volver a pendiente
                                     </button>
                                   </div>`
-                                : isRejected
-                                  ? `<div class="admin-actions">
+                  : isRejected
+                    ? `<div class="admin-actions">
                                       <span class="application-status">rechazada</span>
 
                                       <button
@@ -1499,7 +1446,7 @@ function renderAdminDashboard() {
                                         Volver a pendiente
                                       </button>
                                     </div>`
-                                  : `<div class="admin-actions">
+                    : `<div class="admin-actions">
                                       <button
                                         class="button button-secondary"
                                         type="button"
@@ -1520,19 +1467,18 @@ function renderAdminDashboard() {
                                         Rechazar
                                       </button>
                                     </div>`
-                            }
+                }
                           </div>
 
-                          ${
-                            application.message
-                              ? `<p>“${application.message}”</p>`
-                              : `<p>Sin mensaje adicional.</p>`
-                          }
+                          ${application.message
+                  ? `<p>“${application.message}”</p>`
+                  : `<p>Sin mensaje adicional.</p>`
+                }
                         </article>
                       `;
-                    })
-                    .join("")
-            }
+            })
+            .join("")
+        }
           </div>
         </article>
       `;
@@ -1550,27 +1496,61 @@ if (adminList) {
   renderAdminDashboard();
 
   adminList.addEventListener("click", (event) => {
-  const approveButton = event.target.closest("[data-admin-approve]");
-  const rejectButton = event.target.closest("[data-admin-reject]");
-  const resetButton = event.target.closest("[data-admin-reset]");
+    const approveButton = event.target.closest("[data-admin-approve]");
+    const rejectButton = event.target.closest("[data-admin-reject]");
+    const resetButton = event.target.closest("[data-admin-reset]");
 
-  if (resetButton) {
-    const slug = resetButton.dataset.opportunitySlug;
-    const createdAt = resetButton.dataset.applicationCreatedAt;
+    if (resetButton) {
+      const slug = resetButton.dataset.opportunitySlug;
+      const createdAt = resetButton.dataset.applicationCreatedAt;
 
-    removeApprovedArtist(slug, createdAt);
-    removeRejectedApplication(slug, createdAt);
+      removeApprovedArtist(slug, createdAt);
+      removeRejectedApplication(slug, createdAt);
 
-    renderAdminSummary();
-    renderAdminDashboard();
+      renderAdminSummary();
+      renderAdminDashboard();
 
-    return;
-  }
+      return;
+    }
 
-  if (rejectButton) {
-    const slug = rejectButton.dataset.opportunitySlug;
-    const createdAt = rejectButton.dataset.applicationCreatedAt;
+    if (rejectButton) {
+      const slug = rejectButton.dataset.opportunitySlug;
+      const createdAt = rejectButton.dataset.applicationCreatedAt;
+      const applications = getApplicationsByOpportunity(slug);
+
+      const application = applications.find(
+        (item) => item.createdAt === createdAt
+      );
+
+      if (!application) return;
+
+      saveRejectedApplication(slug, application);
+
+      renderAdminSummary();
+      renderAdminDashboard();
+
+      return;
+    }
+
+    if (!approveButton) return;
+
+    const slug = approveButton.dataset.opportunitySlug;
+    const createdAt = approveButton.dataset.applicationCreatedAt;
     const applications = getApplicationsByOpportunity(slug);
+    const opportunity = opportunities.find((item) => item.slug === slug);
+    const approvedArtists = getApprovedArtistsByOpportunity(slug);
+
+    if (!opportunity) return;
+
+    const availableSpots = Math.max(
+      opportunity.availableSpots - approvedArtists.length,
+      0
+    );
+
+    if (availableSpots === 0) {
+      alert("Esta convocatoria ya completó sus cupos.");
+      return;
+    }
 
     const application = applications.find(
       (item) => item.createdAt === createdAt
@@ -1578,45 +1558,11 @@ if (adminList) {
 
     if (!application) return;
 
-    saveRejectedApplication(slug, application);
+    saveApprovedArtist(slug, application);
 
     renderAdminSummary();
     renderAdminDashboard();
-
-    return;
-  }
-
-  if (!approveButton) return;
-
-  const slug = approveButton.dataset.opportunitySlug;
-  const createdAt = approveButton.dataset.applicationCreatedAt;
-  const applications = getApplicationsByOpportunity(slug);
-  const opportunity = opportunities.find((item) => item.slug === slug);
-  const approvedArtists = getApprovedArtistsByOpportunity(slug);
-
-  if (!opportunity) return;
-
-  const availableSpots = Math.max(
-    opportunity.availableSpots - approvedArtists.length,
-    0
-  );
-
-  if (availableSpots === 0) {
-    alert("Esta convocatoria ya completó sus cupos.");
-    return;
-  }
-
-  const application = applications.find(
-    (item) => item.createdAt === createdAt
-  );
-
-  if (!application) return;
-
-  saveApprovedArtist(slug, application);
-
-  renderAdminSummary();
-  renderAdminDashboard();
-});
+  });
 }
 
 const resetDemoButton = document.querySelector("[data-reset-demo]");
@@ -1649,6 +1595,7 @@ if (adminPendingSpaces) {
 
     approveSpace(button.dataset.spaceId);
 
+    renderAdminSummary();
     renderAdminPendingSpaces();
 
     alert("Espacio aprobado. Ya puede aparecer en la Home y crear convocatorias.");
@@ -1759,17 +1706,17 @@ function renderSpacePanelSummary() {
     </article>
 
     <article class="admin-stat">
-      <span>postulaciones</span>
+      <span>postulantes</span>
       <strong>${applications.length}</strong>
     </article>
 
     <article class="admin-stat">
-      <span>aprobadas</span>
+      <span>artistas confirmados</span>
       <strong>${approved.length}</strong>
     </article>
 
     <article class="admin-stat">
-      <span>pendientes</span>
+      <span>pendientes de revisión</span>
       <strong>${pending}</strong>
     </article>
   `;
@@ -1832,20 +1779,19 @@ function renderSpacePanelDashboard() {
           </div>
 
           <div class="admin-applications">
-            ${
-              applications.length === 0
-                ? `<p class="empty-state">No hay postulaciones todavía.</p>`
-                : applications
-                    .map((application) => {
-                      const isApproved = approvedArtists.some(
-                        (artist) => artist.createdAt === application.createdAt
-                      );
+            ${applications.length === 0
+          ? `<p class="empty-state">No hay postulaciones todavía.</p>`
+          : applications
+            .map((application) => {
+              const isApproved = approvedArtists.some(
+                (artist) => artist.createdAt === application.createdAt
+              );
 
-                      const isRejected = rejectedApplications.some(
-                        (item) => item.createdAt === application.createdAt
-                      );
+              const isRejected = rejectedApplications.some(
+                (item) => item.createdAt === application.createdAt
+              );
 
-                      return `
+              return `
                         <article class="admin-application">
                           <div class="admin-application-top">
                             <div>
@@ -1857,9 +1803,8 @@ function renderSpacePanelDashboard() {
                               </div>
                             </div>
 
-                            ${
-                              isApproved
-                                ? `<div class="admin-actions">
+                            ${isApproved
+                  ? `<div class="admin-actions">
                                     <span class="application-status">aprobada</span>
 
                                     <button
@@ -1872,8 +1817,8 @@ function renderSpacePanelDashboard() {
                                       Volver a pendiente
                                     </button>
                                   </div>`
-                                : isRejected
-                                  ? `<div class="admin-actions">
+                  : isRejected
+                    ? `<div class="admin-actions">
                                       <span class="application-status">rechazada</span>
 
                                       <button
@@ -1886,7 +1831,7 @@ function renderSpacePanelDashboard() {
                                         Volver a pendiente
                                       </button>
                                     </div>`
-                                  : `<div class="admin-actions">
+                    : `<div class="admin-actions">
                                       <button
                                         class="button button-secondary"
                                         type="button"
@@ -1894,7 +1839,7 @@ function renderSpacePanelDashboard() {
                                         data-opportunity-slug="${opportunity.slug}"
                                         data-application-created-at="${application.createdAt}"
                                       >
-                                        Aprobar
+                                        Confirmar artista
                                       </button>
 
                                       <button
@@ -1907,19 +1852,18 @@ function renderSpacePanelDashboard() {
                                         Rechazar
                                       </button>
                                     </div>`
-                            }
+                }
                           </div>
 
-                          ${
-                            application.message
-                              ? `<p>“${application.message}”</p>`
-                              : `<p>Sin mensaje adicional.</p>`
-                          }
+                          ${application.message
+                  ? `<p>“${application.message}”</p>`
+                  : `<p>Sin mensaje adicional.</p>`
+                }
                         </article>
                       `;
-                    })
-                    .join("")
-            }
+            })
+            .join("")
+        }
           </div>
         </article>
       `;
@@ -1964,7 +1908,7 @@ function renderSpacePanelProposals() {
       <div class="admin-opportunity-header">
         <div>
           <p class="section-label">propuestas recibidas</p>
-          <h2>Ideas de muestra para este espacio.</h2>
+          <h2>Propuestas de muestra recibidas.</h2>
         </div>
 
         <div class="admin-opportunity-meta">
@@ -1974,12 +1918,12 @@ function renderSpacePanelProposals() {
 
       <div class="admin-applications">
         ${proposals
-          .map((proposal) => {
-            const isRejected = proposal.status === "rejected";
-            const isAccepted = proposal.status === "accepted";
-            const isConverted = proposal.status === "converted";
+      .map((proposal) => {
+        const isRejected = proposal.status === "rejected";
+        const isAccepted = proposal.status === "accepted";
+        const isConverted = proposal.status === "converted";
 
-            return `
+        return `
               <article class="admin-application">
                 <div class="admin-application-top">
                   <div>
@@ -1992,9 +1936,8 @@ function renderSpacePanelProposals() {
                     </div>
                   </div>
 
-                  ${
-                    isConverted
-                      ? `<div class="admin-actions">
+                  ${isConverted
+            ? `<div class="admin-actions">
                           <span class="proposal-status is-converted">
                             convertida en convocatoria
                           </span>
@@ -2006,12 +1949,12 @@ function renderSpacePanelProposals() {
                             Ver convocatoria
                           </a>
                         </div>`
-                      : isRejected
-                        ? `<span class="proposal-status">rechazada</span>`
-                        : isAccepted
-                          ? `<div class="admin-actions">
+            : isRejected
+              ? `<span class="proposal-status">rechazada</span>`
+              : isAccepted
+                ? `<div class="admin-actions">
                               <span class="proposal-status is-accepted">
-                                aceptada
+                                aceptada · en armado
                               </span>
 
                               <button
@@ -2024,7 +1967,7 @@ function renderSpacePanelProposals() {
                                 Armar convocatoria
                               </button>
                             </div>`
-                          : `<div class="admin-actions">
+                : `<div class="admin-actions">
                               <button
                                 class="button button-secondary"
                                 type="button"
@@ -2032,7 +1975,7 @@ function renderSpacePanelProposals() {
                                 data-space-key="${spaceKey}"
                                 data-proposal-id="${proposal.id}"
                               >
-                                Rechazar
+                                Rechazar propuesta
                               </button>
 
                               <button
@@ -2045,7 +1988,7 @@ function renderSpacePanelProposals() {
                                 Aceptar propuesta
                               </button>
                             </div>`
-                  }
+          }
                 </div>
 
                 <p>${proposal.idea}</p>
@@ -2059,8 +2002,8 @@ function renderSpacePanelProposals() {
                 </p>
               </article>
             `;
-          })
-          .join("")}
+      })
+      .join("")}
       </div>
     </article>
   `;
@@ -2384,6 +2327,21 @@ if (artistFormForProposal) {
   });
 }
 
+if (artistFormForProposal) {
+  artistFormForProposal.addEventListener("submit", () => {
+    if (!pendingApplyAfterArtist) return;
+
+    setTimeout(() => {
+      if (!hasArtistProfileCreated()) return;
+
+      pendingApplyAfterArtist = false;
+
+      closeArtistModal();
+      openApplyModal();
+    }, 0);
+  });
+}
+
 function openConvertProposalModal(proposal, spaceKey, spaceName) {
   if (!convertProposalModal || !convertProposalForm) return;
 
@@ -2548,6 +2506,531 @@ if (convertProposalForm) {
 
       renderSpacePanelSummary();
       renderSpacePanelProposals();
+      renderSpacePanelDashboard();
+    }, 600);
+  });
+}
+
+const artistPanelSelect = document.querySelector("[data-artist-panel-select]");
+const artistPanelSummary = document.querySelector("[data-artist-panel-summary]");
+const artistPanelProfile = document.querySelector("[data-artist-panel-profile]");
+const artistPanelApplications = document.querySelector(
+  "[data-artist-panel-applications]"
+);
+const artistPanelProposals = document.querySelector(
+  "[data-artist-panel-proposals]"
+);
+
+function getSelectedArtistName() {
+  if (!artistPanelSelect) return "";
+
+  return artistPanelSelect.value;
+}
+
+function getSelectedArtistForPanel() {
+  const selectedArtistName = getSelectedArtistName();
+
+  return getSavedArtists().find((artist) => artist.name === selectedArtistName);
+}
+
+function getAllShowProposals() {
+  const savedProposals = getSavedShowProposals();
+
+  return Object.values(savedProposals).flat();
+}
+
+function getArtistPanelProposals(artist) {
+  if (!artist) return [];
+
+  return getAllShowProposals().filter((proposal) => {
+    return (
+      proposal.artistName === artist.name ||
+      proposal.portfolio === artist.portfolio
+    );
+  });
+}
+
+function getArtistPanelApplications(artist) {
+  if (!artist) return [];
+
+  const savedApplications = getSavedApplications();
+
+  return Object.entries(savedApplications).flatMap(([slug, applications]) => {
+    const opportunity = opportunities.find((item) => item.slug === slug);
+
+    return applications
+      .filter((application) => {
+        return (
+          application.name === artist.name ||
+          application.portfolio === artist.portfolio
+        );
+      })
+      .map((application) => ({
+        ...application,
+        opportunitySlug: slug,
+        opportunityTitle: opportunity
+          ? opportunity.fullTitle || opportunity.title
+          : "Convocatoria",
+        opportunityDate: opportunity ? opportunity.date : "Fecha a confirmar",
+      }));
+  });
+}
+
+function getArtistApplicationStatus(application) {
+  const approvedArtists = getApprovedArtistsByOpportunity(
+    application.opportunitySlug
+  );
+
+  const rejectedApplications = getRejectedApplicationsByOpportunity(
+    application.opportunitySlug
+  );
+
+  const isApproved = approvedArtists.some(
+    (artist) => artist.createdAt === application.createdAt
+  );
+
+  const isRejected = rejectedApplications.some(
+    (item) => item.createdAt === application.createdAt
+  );
+
+  if (isApproved) return "aprobada";
+  if (isRejected) return "rechazada";
+
+  return "pendiente";
+}
+
+function getProposalStatusLabel(status) {
+  if (status === "accepted") return "aceptada · en armado";
+  if (status === "rejected") return "rechazada";
+  if (status === "converted") return "convertida en convocatoria";
+
+  return "pendiente";
+}
+
+function renderArtistPanelSelect() {
+  if (!artistPanelSelect) return;
+
+  const artists = getSavedArtists();
+
+  if (artists.length === 0) {
+    artistPanelSelect.innerHTML = `
+      <option value="">No hay artistas creados</option>
+    `;
+    return;
+  }
+
+  artistPanelSelect.innerHTML = artists
+    .map(
+      (artist) => `
+        <option value="${artist.name}">
+          ${artist.name}
+        </option>
+      `
+    )
+    .join("");
+}
+
+function renderArtistPanelSummary() {
+  if (!artistPanelSummary) return;
+
+  const artist = getSelectedArtistForPanel();
+  const applications = getArtistPanelApplications(artist);
+  const proposals = getArtistPanelProposals(artist);
+
+  const confirmedApplications = applications.filter((application) => {
+    return getArtistApplicationStatus(application) === "aprobada";
+  });
+
+  const inProcessProposals = proposals.filter((proposal) => {
+    return proposal.status !== "rejected";
+  });
+
+  artistPanelSummary.innerHTML = `
+    <article class="admin-stat">
+      <span>postulaciones</span>
+      <strong>${applications.length}</strong>
+    </article>
+
+    <article class="admin-stat">
+      <span>confirmadas</span>
+      <strong>${confirmedApplications.length}</strong>
+    </article>
+
+    <article class="admin-stat">
+      <span>propuestas enviadas</span>
+      <strong>${proposals.length}</strong>
+    </article>
+
+    <article class="admin-stat">
+      <span>en proceso</span>
+      <strong>${inProcessProposals.length}</strong>
+    </article>
+  `;
+}
+
+function renderArtistPanelProfile() {
+  if (!artistPanelProfile) return;
+
+  const artist = getSelectedArtistForPanel();
+
+  if (!artist) {
+    artistPanelProfile.innerHTML = `
+      <article class="artist-profile-card">
+        <p class="section-label">perfil</p>
+        <h2>Todavía no hay perfil de artista.</h2>
+        <p class="empty-state">
+          Creá un perfil desde la Home para empezar a postularte o proponer muestras.
+        </p>
+      </article>
+    `;
+
+    return;
+  }
+
+  artistPanelProfile.innerHTML = `
+    <article class="artist-profile-card">
+      <p class="section-label">mi perfil</p>
+
+      <h2>${artist.name}</h2>
+
+      <div class="artist-profile-meta">
+        <span>${artist.discipline || "disciplina"}</span>
+        <span>${artist.city || "ciudad a definir"}</span>
+        <span>${artist.portfolio || "portfolio pendiente"}</span>
+      </div>
+
+      <p>
+        ${artist.bio ||
+    "Este perfil todavía no tiene una bio cargada, pero ya puede moverse dentro de enredARTE."
+    }
+      </p>
+    </article>
+  `;
+}
+
+function renderArtistPanelApplications() {
+  if (!artistPanelApplications) return;
+
+  const artist = getSelectedArtistForPanel();
+  const applications = getArtistPanelApplications(artist);
+
+  if (!artist) {
+    artistPanelApplications.innerHTML = "";
+    return;
+  }
+
+  if (applications.length === 0) {
+    artistPanelApplications.innerHTML = `
+      <article class="admin-opportunity">
+        <div class="admin-opportunity-header">
+          <div>
+            <p class="section-label">mis postulaciones</p>
+            <h2>Todavía no te postulaste a ninguna convocatoria.</h2>
+          </div>
+        </div>
+
+        <p class="empty-state">
+          Cuando te postules a una oportunidad abierta, vas a poder seguir su estado acá.
+        </p>
+      </article>
+    `;
+
+    return;
+  }
+
+  artistPanelApplications.innerHTML = `
+    <article class="admin-opportunity">
+      <div class="admin-opportunity-header">
+        <div>
+          <p class="section-label">mis postulaciones</p>
+          <h2>Convocatorias a las que te postulaste.</h2>
+        </div>
+
+        <div class="admin-opportunity-meta">
+          <span>${applications.length} postulaciones</span>
+        </div>
+      </div>
+
+      <div class="admin-applications">
+        ${applications
+      .map((application) => {
+        const status = getArtistApplicationStatus(application);
+        const statusClass =
+          status === "aprobada"
+            ? "is-approved"
+            : status === "rechazada"
+              ? "is-rejected"
+              : "";
+
+        return `
+              <article class="admin-application">
+                <div class="admin-application-top">
+                  <div>
+                    <h3>${application.opportunityTitle}</h3>
+
+                    <div class="application-meta">
+                      <span>${application.discipline}</span>
+                      <span>${application.opportunityDate}</span>
+                    </div>
+                  </div>
+
+                  <span class="artist-panel-status ${statusClass}">
+                    ${status}
+                  </span>
+                </div>
+
+                ${application.message
+            ? `<p>“${application.message}”</p>`
+            : `<p>Sin mensaje adicional.</p>`
+          }
+
+                <a
+                  class="button button-secondary"
+                  href="oportunidad.html?o=${application.opportunitySlug}"
+                >
+                  Ver convocatoria
+                </a>
+              </article>
+            `;
+      })
+      .join("")}
+      </div>
+    </article>
+  `;
+}
+
+function renderArtistPanelProposals() {
+  if (!artistPanelProposals) return;
+
+  const artist = getSelectedArtistForPanel();
+  const proposals = getArtistPanelProposals(artist);
+
+  if (!artist) {
+    artistPanelProposals.innerHTML = "";
+    return;
+  }
+
+  if (proposals.length === 0) {
+    artistPanelProposals.innerHTML = `
+      <article class="admin-opportunity">
+        <div class="admin-opportunity-header">
+          <div>
+            <p class="section-label">mis propuestas</p>
+            <h2>Todavía no propusiste ninguna muestra.</h2>
+          </div>
+        </div>
+
+        <p class="empty-state">
+          Cuando propongas una muestra para un espacio, vas a poder seguir su estado acá.
+        </p>
+      </article>
+    `;
+
+    return;
+  }
+
+  artistPanelProposals.innerHTML = `
+    <article class="admin-opportunity">
+      <div class="admin-opportunity-header">
+        <div>
+          <p class="section-label">mis propuestas</p>
+          <h2>Ideas de muestra que enviaste.</h2>
+        </div>
+
+        <div class="admin-opportunity-meta">
+          <span>${proposals.length} propuestas</span>
+        </div>
+      </div>
+
+      <div class="admin-applications">
+        ${proposals
+      .map((proposal) => {
+        const statusLabel = getProposalStatusLabel(proposal.status);
+
+        const statusClass =
+          proposal.status === "accepted"
+            ? "is-accepted"
+            : proposal.status === "converted"
+              ? "is-converted"
+              : proposal.status === "rejected"
+                ? "is-rejected"
+                : "";
+
+        return `
+              <article class="admin-application">
+                <div class="admin-application-top">
+                  <div>
+                    <h3>${proposal.title}</h3>
+
+                    <div class="application-meta">
+                      <span>${proposal.spaceName}</span>
+                      <span>${proposal.discipline}</span>
+                      <span>${proposal.date}</span>
+                    </div>
+                  </div>
+
+                  <span class="artist-panel-status ${statusClass}">
+                    ${statusLabel}
+                  </span>
+                </div>
+
+                <p>${proposal.idea}</p>
+
+                ${proposal.status === "converted"
+            ? `<a
+                        class="button button-secondary"
+                        href="oportunidad.html?o=${proposal.opportunitySlug}"
+                      >
+                        Ver convocatoria
+                      </a>`
+            : ""
+          }
+              </article>
+            `;
+      })
+      .join("")}
+      </div>
+    </article>
+  `;
+}
+
+function renderArtistPanel() {
+  if (!artistPanelSelect) return;
+
+  renderArtistPanelSelect();
+  renderArtistPanelSummary();
+  renderArtistPanelProfile();
+  renderArtistPanelApplications();
+  renderArtistPanelProposals();
+}
+
+if (artistPanelSelect) {
+  artistPanelSelect.addEventListener("change", () => {
+    renderArtistPanelSummary();
+    renderArtistPanelProfile();
+    renderArtistPanelApplications();
+    renderArtistPanelProposals();
+  });
+}
+
+renderArtistPanel();
+
+const openSpaceOpportunityButton = document.querySelector(
+  "[data-open-space-opportunity]"
+);
+
+const spaceOpportunityModal = document.querySelector(
+  "[data-space-opportunity-modal]"
+);
+
+const spaceOpportunityForm = document.querySelector(
+  "[data-space-opportunity-form]"
+);
+
+const spaceOpportunitySuccess = document.querySelector(
+  "[data-space-opportunity-success]"
+);
+
+const spaceOpportunityName = document.querySelector(
+  "[data-space-opportunity-name]"
+);
+
+function openSpaceOpportunityModal() {
+  if (!spaceOpportunityModal || !spaceOpportunityForm) return;
+
+  const selectedSpace = getSelectedSpaceForPanel();
+
+  if (!selectedSpace) {
+    alert("Primero seleccioná un espacio aprobado.");
+    return;
+  }
+
+  spaceOpportunityForm.reset();
+
+  if (spaceOpportunitySuccess) {
+    spaceOpportunitySuccess.hidden = true;
+  }
+
+  if (spaceOpportunityName) {
+    spaceOpportunityName.textContent = selectedSpace.name;
+  }
+
+  spaceOpportunityModal.classList.add("is-open");
+  spaceOpportunityModal.setAttribute("aria-hidden", "false");
+}
+
+function closeSpaceOpportunityModal() {
+  if (!spaceOpportunityModal) return;
+
+  spaceOpportunityModal.classList.remove("is-open");
+  spaceOpportunityModal.setAttribute("aria-hidden", "true");
+}
+
+if (openSpaceOpportunityButton) {
+  openSpaceOpportunityButton.addEventListener("click", () => {
+    openSpaceOpportunityModal();
+  });
+}
+
+document.addEventListener("click", (event) => {
+  const closeButton = event.target.closest("[data-close-space-opportunity]");
+
+  if (!closeButton) return;
+
+  closeSpaceOpportunityModal();
+});
+
+if (spaceOpportunityForm) {
+  spaceOpportunityForm.addEventListener("submit", (event) => {
+    event.preventDefault();
+
+    const selectedSpace = getSelectedSpaceForPanel();
+
+    if (!selectedSpace) return;
+
+    const formData = new FormData(spaceOpportunityForm);
+    const opportunityData = Object.fromEntries(formData);
+
+    const totalSpots = Number(opportunityData.totalSpots) || 1;
+
+    const newOpportunitySlug = createSlug(
+      `${opportunityData.opportunityTitle}-${Date.now()}`
+    );
+
+    const newOpportunity = {
+      slug: newOpportunitySlug,
+      title: selectedSpace.name,
+      fullTitle: opportunityData.opportunityTitle,
+      city: selectedSpace.city,
+      neighborhood: selectedSpace.neighborhood,
+      discipline: [opportunityData.discipline.toLowerCase()],
+      detailDiscipline: opportunityData.discipline,
+      description: opportunityData.description,
+      detailDescription: opportunityData.description,
+      date: opportunityData.date,
+      time: opportunityData.time,
+      cost: opportunityData.artistCost,
+      totalCost: opportunityData.totalCost,
+      confirmed: 0,
+      totalSpots,
+      availableSpots: totalSpots,
+      spots:
+        totalSpots === 1
+          ? "1 cupo disponible"
+          : `${totalSpots} cupos disponibles`,
+    };
+
+    opportunities.unshift(newOpportunity);
+    saveOpportunity(newOpportunity);
+
+    if (spaceOpportunitySuccess) {
+      spaceOpportunitySuccess.hidden = false;
+    }
+
+    setTimeout(() => {
+      closeSpaceOpportunityModal();
+
+      renderSpacePanelSummary();
       renderSpacePanelDashboard();
     }, 600);
   });
