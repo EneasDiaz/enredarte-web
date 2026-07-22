@@ -1726,6 +1726,30 @@ function getSelectedSpaceName() {
   return spacePanelSelect.value;
 }
 
+function getCurrentSpaceFromSession() {
+  const currentUser = getCurrentUser();
+
+  if (!currentUser || currentUser.type !== "space") return null;
+
+  const approvedSpaces = getApprovedSpacesForPanel();
+
+  return (
+    approvedSpaces.find((space) => createSlug(space.name) === currentUser.id) ||
+    approvedSpaces.find((space) => space.name === currentUser.name) ||
+    null
+  );
+}
+
+function setCurrentSpaceSession(space) {
+  if (!space) return;
+
+  setCurrentUser({
+    type: "space",
+    id: createSlug(space.name),
+    name: space.name,
+  });
+}
+
 function getOpportunitiesBySpace(spaceName) {
   return opportunities.filter((opportunity) => {
     return opportunity.title === spaceName;
@@ -1736,6 +1760,7 @@ function renderSpacePanelSelect() {
   if (!spacePanelSelect) return;
 
   const approvedSpaces = getApprovedSpacesForPanel();
+  const currentSpace = getCurrentSpaceFromSession();
 
   if (approvedSpaces.length === 0) {
     spacePanelSelect.innerHTML = `
@@ -1753,6 +1778,10 @@ function renderSpacePanelSelect() {
       `
     )
     .join("");
+
+  if (currentSpace) {
+    spacePanelSelect.value = currentSpace.name;
+  }
 }
 
 function renderSpacePanelSummary() {
@@ -2092,6 +2121,13 @@ function renderSpacePanel() {
   if (!spacePanelList) return;
 
   renderSpacePanelSelect();
+
+  const selectedSpace = getSelectedSpaceForPanel();
+
+  if (selectedSpace && !getCurrentSpaceFromSession()) {
+    setCurrentSpaceSession(selectedSpace);
+  }
+
   renderSpacePanelSummary();
   renderSpacePanelProposals();
   renderSpacePanelDashboard();
@@ -2099,6 +2135,12 @@ function renderSpacePanel() {
 
 if (spacePanelSelect) {
   spacePanelSelect.addEventListener("change", () => {
+    const selectedSpace = getSelectedSpaceForPanel();
+
+    if (selectedSpace) {
+      setCurrentSpaceSession(selectedSpace);
+    }
+
     renderSpacePanelSummary();
     renderSpacePanelProposals();
     renderSpacePanelDashboard();
