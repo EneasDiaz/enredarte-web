@@ -2606,7 +2606,25 @@ function getSelectedArtistName() {
   return artistPanelSelect.value;
 }
 
+function getCurrentArtistFromSession() {
+  const currentUser = getCurrentUser();
+
+  if (!currentUser || currentUser.type !== "artist") return null;
+
+  const savedArtists = getSavedArtists();
+
+  return (
+    savedArtists.find((artist) => artist.id === currentUser.id) ||
+    savedArtists.find((artist) => artist.name === currentUser.name) ||
+    null
+  );
+}
+
 function getSelectedArtistForPanel() {
+  const currentArtist = getCurrentArtistFromSession();
+
+  if (currentArtist) return currentArtist;
+
   const selectedArtistName = getSelectedArtistName();
 
   return getSavedArtists().find((artist) => artist.name === selectedArtistName);
@@ -2689,22 +2707,38 @@ function getProposalStatusLabel(status) {
 function renderArtistPanelSelect() {
   if (!artistPanelSelect) return;
 
+  const currentArtist = getCurrentArtistFromSession();
+
+  if (currentArtist) {
+    artistPanelSelect.innerHTML = `
+    <option value="${currentArtist.name}">
+      ${currentArtist.name}
+    </option>
+  `;
+
+    artistPanelSelect.disabled = true;
+
+    return;
+  }
+
   const artists = getSavedArtists();
+
+  artistPanelSelect.disabled = false;
 
   if (artists.length === 0) {
     artistPanelSelect.innerHTML = `
-      <option value="">No hay artistas creados</option>
-    `;
+    <option value="">No hay artistas creados</option>
+  `;
     return;
   }
 
   artistPanelSelect.innerHTML = artists
     .map(
       (artist) => `
-        <option value="${artist.name}">
-          ${artist.name}
-        </option>
-      `
+      <option value="${artist.name}">
+        ${artist.name}
+      </option>
+    `
     )
     .join("");
 }
