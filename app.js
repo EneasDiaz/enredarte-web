@@ -3118,7 +3118,7 @@ function renderPublicArtistProfile() {
                     </div>
 
                     <span class="artist-panel-status">
-                      ${status}
+                      participación confirmada
                     </span>
                   </div>
 
