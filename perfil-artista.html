@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Artista | enredARTE</title>
+    <link rel="stylesheet" href="styles.css" />
+</head>
+
+<body>
+    <header class="site-header detail-header" data-header>
+        <a class="brand" href="index.html" aria-label="enredARTE">
+            <span>enred</span>
+            <strong>ARTE</strong>
+        </a>
+
+        <nav class="main-nav">
+            <a href="index.html#oportunidades">_oportunidades</a>
+            <a href="index.html#como-funciona">_cómo funciona</a>
+            <a href="index.html#artistas">_artistas</a>
+            <a href="index.html#espacios">_espacios</a>
+        </nav>
+
+        <button class="menu-button" type="button" data-menu-button aria-expanded="false">
+            menú
+        </button>
+    </header>
+
+    <main>
+        <section class="admin-hero artist-public-hero">
+            <a class="back-link" href="index.html#artistas">← volver a artistas</a>
+
+            <p class="section-label" data-artist-public-discipline>
+                artista
+            </p>
+
+            <h1 data-artist-public-name>
+                Perfil de artista.
+            </h1>
+
+            <p data-artist-public-bio>
+                Un espacio para conocer su obra, recorrido y movimientos dentro de enredARTE.
+            </p>
+
+            <div class="artist-profile-meta artist-public-meta">
+                <span data-artist-public-city>ciudad</span>
+                <span data-artist-public-portfolio>portfolio</span>
+            </div>
+        </section>
+
+        <section class="section artist-public-section">
+            <div class="artist-public-layout">
+                <article class="artist-profile-card">
+                    <p class="section-label">sobre su obra</p>
+
+                    <h2 data-artist-public-about-title>
+                        Obra y búsqueda.
+                    </h2>
+
+                    <p data-artist-public-about>
+                        Este perfil reúne información del artista y sus movimientos dentro de la plataforma.
+                    </p>
+                </article>
+
+                <div class="artist-public-side">
+                    <article class="admin-stat">
+                        <span>postulaciones</span>
+                        <strong data-artist-public-applications-count>0</strong>
+                    </article>
+
+                    <article class="admin-stat">
+                        <span>propuestas</span>
+                        <strong data-artist-public-proposals-count>0</strong>
+                    </article>
+
+                    <article class="admin-stat">
+                        <span>confirmadas</span>
+                        <strong data-artist-public-confirmed-count>0</strong>
+                    </article>
+                </div>
+            </div>
+
+            <div class="artist-panel-block" data-artist-public-applications>
+                <article class="admin-opportunity">
+                    <div class="admin-opportunity-header">
+                        <div>
+                            <p class="section-label">actividad</p>
+                            <h2>Movimientos dentro de enredARTE.</h2>
+                        </div>
+                    </div>
+
+                    <p class="empty-state">
+                        Cuando este artista se postule o proponga una muestra, su actividad va a aparecer acá.
+                    </p>
+                </article>
+            </div>
+        </section>
+    </main>
+
+    <footer class="site-footer">
+        <p>
+            <span>enred</span>
+            <strong>ARTE</strong>
+        </p>
+
+        <p>Todo arte necesita un lugar.</p>
+    </footer>
+
+    <script src="app.js"></script>
+</body>
+
+</html>
