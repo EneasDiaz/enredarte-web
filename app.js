@@ -192,6 +192,33 @@ function clearCurrentUser() {
   localStorage.removeItem("enredarteCurrentUser");
 }
 
+function updateHomeSessionCtas() {
+  const currentUser = getCurrentUser();
+
+  const artistCtas = document.querySelectorAll("[data-artist-session-cta]");
+  const spaceCtas = document.querySelectorAll("[data-space-session-cta]");
+
+  if (currentUser && currentUser.type === "artist") {
+    artistCtas.forEach((button) => {
+      button.textContent = "Ir a mi panel";
+      button.removeAttribute("data-open-artist");
+      button.addEventListener("click", () => {
+        window.location.href = "panel-artista.html";
+      });
+    });
+  }
+
+  if (currentUser && currentUser.type === "space") {
+    spaceCtas.forEach((button) => {
+      button.textContent = "Ir a mi panel";
+      button.removeAttribute("data-open-space");
+      button.addEventListener("click", () => {
+        window.location.href = "panel-espacio.html";
+      });
+    });
+  }
+}
+
 function getSavedSpaces() {
   const savedSpaces = localStorage.getItem("enredarteSpaces");
 
@@ -1115,6 +1142,7 @@ function renderFeaturedSpaces() {
 }
 
 renderFeaturedSpaces();
+updateHomeSessionCtas();
 
 
 const applicationsList = document.querySelector("[data-applications-list]");
