@@ -433,6 +433,44 @@ const featuredArtists = [
 
 featuredArtists.unshift(...getSavedArtists());
 
+function getArtistPublicProfileHref(artist) {
+  if (!artist) return "";
+
+  const artistName = artist.name || "";
+  const artistPortfolio = artist.portfolio || artist.instagram || "";
+
+  const publicArtist = featuredArtists.find((profile) => {
+    const sameName =
+      artistName && createSlug(profile.name) === createSlug(artistName);
+
+    const samePortfolio =
+      artistPortfolio &&
+      (profile.portfolio === artistPortfolio ||
+        profile.instagram === artistPortfolio);
+
+    return sameName || samePortfolio;
+  });
+
+  if (!publicArtist) return "";
+
+  return `perfil-artista.html?a=${createSlug(publicArtist.name)}`;
+}
+
+function renderArtistPublicName(artist) {
+  const href = getArtistPublicProfileHref(artist);
+
+  if (!href) {
+    return `<strong>${artist.name}</strong>`;
+  }
+
+  return `
+    <a class="profile-inline-link" href="${href}">
+      <strong>${artist.name}</strong>
+      <span aria-hidden="true">↗</span>
+    </a>
+  `;
+}
+
 const featuredSpaces = [
   {
     name: "Galería Palermo",
@@ -1170,7 +1208,7 @@ function renderBaseConfirmedArtists() {
     .map(
       (artist) => `
         <div>
-          <strong>${artist.name}</strong>
+          ${renderArtistPublicName(artist)}
           <span>${artist.discipline}</span>
         </div>
       `
@@ -1197,7 +1235,7 @@ function renderApprovedArtists() {
     .map(
       (artist) => `
         <article class="approved-artist-card">
-          <strong>${artist.name}</strong>
+          ${renderArtistPublicName(artist)}
           <span>${artist.discipline} · ${artist.portfolio}</span>
         </article>
       `
@@ -3149,8 +3187,8 @@ const publicSpaceAbout = document.querySelector("[data-space-public-about]");
 const publicSpaceOpportunitiesCount = document.querySelector(
   "[data-space-public-opportunities-count]"
 );
-const publicSpaceProposalsCount = document.querySelector(
-  "[data-space-public-proposals-count]"
+const publicSpaceCapacityStat = document.querySelector(
+  "[data-space-public-capacity-stat]"
 );
 const publicSpacePrice = document.querySelector("[data-space-public-price]");
 const publicSpaceOpportunities = document.querySelector(
@@ -3187,7 +3225,6 @@ function renderPublicSpaceProfile() {
 
   const spaceKey = createSlug(space.name);
   const spaceOpportunities = getOpportunitiesBySpace(space.name);
-  const spaceProposals = getProposalsBySpace(spaceKey);
 
   document.title = `${space.name} | enredARTE`;
 
@@ -3208,7 +3245,7 @@ function renderPublicSpaceProfile() {
     "Este perfil reúne información del espacio, sus características y las oportunidades activas dentro de enredARTE.";
 
   publicSpaceOpportunitiesCount.textContent = spaceOpportunities.length;
-  publicSpaceProposalsCount.textContent = spaceProposals.length;
+  publicSpaceCapacityStat.textContent = space.capacity || "—";
   publicSpacePrice.textContent = space.price || "—";
 
   if (publicSpaceProposalButton) {
