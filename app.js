@@ -176,6 +176,22 @@ function saveArtist(artist) {
   localStorage.setItem("enredarteArtists", JSON.stringify(savedArtists));
 }
 
+function getCurrentUser() {
+  const currentUser = localStorage.getItem("enredarteCurrentUser");
+
+  if (!currentUser) return null;
+
+  return JSON.parse(currentUser);
+}
+
+function setCurrentUser(user) {
+  localStorage.setItem("enredarteCurrentUser", JSON.stringify(user));
+}
+
+function clearCurrentUser() {
+  localStorage.removeItem("enredarteCurrentUser");
+}
+
 function getSavedSpaces() {
   const savedSpaces = localStorage.getItem("enredarteSpaces");
 
@@ -918,6 +934,13 @@ if (artistForm) {
 
     featuredArtists.unshift(newArtist);
     saveArtist(newArtist);
+
+    setCurrentUser({
+      type: "artist",
+      id: newArtist.id,
+      name: newArtist.name,
+    });
+
     renderFeaturedArtists();
 
     artistForm.reset();
@@ -1637,6 +1660,7 @@ if (resetDemoButton) {
     localStorage.removeItem("enredarteApprovedArtists");
     localStorage.removeItem("enredarteRejectedApplications");
     localStorage.removeItem("enredarteShowProposals");
+    localStorage.removeItem("enredarteCurrentUser");
 
     window.location.reload();
   });
@@ -3101,10 +3125,10 @@ function renderPublicArtistProfile() {
 
       <div class="admin-applications">
         ${publicApplications
-          .map((application) => {
-          const status = getArtistApplicationStatus(application);
+      .map((application) => {
+        const status = getArtistApplicationStatus(application);
 
-          return `
+        return `
                 <article class="admin-application">
                   <div class="admin-application-top">
                     <div>
@@ -3130,14 +3154,14 @@ function renderPublicArtistProfile() {
                   </a>
                 </article>
               `;
-        })
-        .join("")}
+      })
+      .join("")}
 
         ${publicProposals
-          .map((proposal) => {
-            const statusLabel = getProposalStatusLabel(proposal.status);
+      .map((proposal) => {
+        const statusLabel = getProposalStatusLabel(proposal.status);
 
-            return `
+        return `
                   <article class="admin-application">
                     <div class="admin-application-top">
                       <div>
@@ -3159,18 +3183,18 @@ function renderPublicArtistProfile() {
                     <p>${proposal.idea}</p>
 
                     ${proposal.status === "converted"
-                ? `<a
+            ? `<a
                             class="button button-secondary"
                             href="oportunidad.html?o=${proposal.opportunitySlug}"
                           >
                             Ver convocatoria
                           </a>`
-                : ""
-              }
+            : ""
+          }
                   </article>
                 `;
-          })
-          .join("")}
+      })
+      .join("")}
       </div>
     </article>
   `;
