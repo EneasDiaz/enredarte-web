@@ -242,6 +242,10 @@ function updateHomeSessionCtas() {
       button.textContent = "Ir a mi panel de artista";
       button.removeAttribute("data-open-artist");
 
+      if (button.dataset.artistSessionCtaReady === "true") return;
+
+      button.dataset.artistSessionCtaReady = "true";
+
       button.addEventListener(
         "click",
         (event) => {
@@ -258,6 +262,10 @@ function updateHomeSessionCtas() {
     spaceCtas.forEach((button) => {
       button.textContent = "Ir a mi panel de espacio";
       button.removeAttribute("data-open-space");
+
+      if (button.dataset.spaceSessionCtaReady === "true") return;
+
+      button.dataset.spaceSessionCtaReady = "true";
 
       button.addEventListener(
         "click",
@@ -1039,6 +1047,8 @@ if (artistForm) {
     setCurrentArtistSession(newArtist);
 
     renderFeaturedArtists();
+    updateHomeSessionCtas();
+    updateSessionSwitch();
 
     artistForm.reset();
 
