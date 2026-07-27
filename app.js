@@ -176,64 +176,119 @@ function saveArtist(artist) {
   localStorage.setItem("enredarteArtists", JSON.stringify(savedArtists));
 }
 
-function getCurrentUser() {
-  const currentUser = localStorage.getItem("enredarteCurrentUser");
+function getStoredData(key, fallback) {
+  const savedData = localStorage.getItem(key);
 
-  if (!currentUser) return null;
+  if (!savedData) return fallback;
 
-  return JSON.parse(currentUser);
+  return JSON.parse(savedData);
 }
 
-function setCurrentUser(user) {
-  localStorage.setItem("enredarteCurrentUser", JSON.stringify(user));
+function setStoredData(key, value) {
+  localStorage.setItem(key, JSON.stringify(value));
 }
 
-function clearCurrentUser() {
+function getCurrentArtistSession() {
+  return getStoredData("enredarteCurrentArtist", null);
+}
+
+function setCurrentArtistSession(artist) {
+  if (!artist) return;
+
+  setStoredData("enredarteCurrentArtist", {
+    id: artist.id,
+    name: artist.name,
+  });
+}
+
+function clearCurrentArtistSession() {
+  localStorage.removeItem("enredarteCurrentArtist");
+}
+
+function getCurrentSpaceSession() {
+  return getStoredData("enredarteCurrentSpace", null);
+}
+
+function setCurrentSpaceSession(space) {
+  if (!space) return;
+
+  setStoredData("enredarteCurrentSpace", {
+    id: createSlug(space.name),
+    name: space.name,
+  });
+}
+
+function clearCurrentSpaceSession() {
+  localStorage.removeItem("enredarteCurrentSpace");
+}
+
+function clearSessionContext() {
+  clearCurrentArtistSession();
+  clearCurrentSpaceSession();
+
+  // Borra la sesión vieja para que no siga interfiriendo.
   localStorage.removeItem("enredarteCurrentUser");
 }
 
 function updateHomeSessionCtas() {
-  const currentUser = getCurrentUser();
+  const currentArtist = getCurrentArtistFromSession();
+  const currentSpace = getCurrentSpaceFromSession();
 
   const artistCtas = document.querySelectorAll("[data-artist-session-cta]");
   const spaceCtas = document.querySelectorAll("[data-space-session-cta]");
 
-  if (currentUser && currentUser.type === "artist") {
+  if (currentArtist) {
     artistCtas.forEach((button) => {
-      button.textContent = "Ir a mi panel";
+      button.textContent = "Ir a mi panel de artista";
       button.removeAttribute("data-open-artist");
-      button.addEventListener("click", () => {
-        window.location.href = "panel-artista.html";
-      });
+
+      button.addEventListener(
+        "click",
+        (event) => {
+          event.preventDefault();
+          event.stopImmediatePropagation();
+          window.location.href = "panel-artista.html";
+        },
+        true
+      );
     });
   }
 
-  if (currentUser && currentUser.type === "space") {
+  if (currentSpace) {
     spaceCtas.forEach((button) => {
-      button.textContent = "Ir a mi panel";
+      button.textContent = "Ir a mi panel de espacio";
       button.removeAttribute("data-open-space");
-      button.addEventListener("click", () => {
-        window.location.href = "panel-espacio.html";
-      });
+
+      button.addEventListener(
+        "click",
+        (event) => {
+          event.preventDefault();
+          event.stopImmediatePropagation();
+          window.location.href = "panel-espacio.html";
+        },
+        true
+      );
     });
   }
 }
 
 function updateSessionSwitch() {
-  const currentUser = getCurrentUser();
+  const currentArtist = getCurrentArtistSession();
+  const currentSpace = getCurrentSpaceSession();
   const sessionSwitch = document.querySelector("[data-clear-session]");
 
   if (!sessionSwitch) return;
 
-  if (!currentUser) {
+  if (!currentArtist && !currentSpace) {
     sessionSwitch.hidden = true;
     return;
   }
 
   sessionSwitch.hidden = false;
+  sessionSwitch.textContent = "Cambiar perfil";
 
   sessionSwitch.addEventListener("click", () => {
-    clearCurrentUser();
+    clearSessionContext();
     window.location.reload();
   });
 }
@@ -981,11 +1036,7 @@ if (artistForm) {
     featuredArtists.unshift(newArtist);
     saveArtist(newArtist);
 
-    setCurrentUser({
-      type: "artist",
-      id: newArtist.id,
-      name: newArtist.name,
-    });
+    setCurrentArtistSession(newArtist);
 
     renderFeaturedArtists();
 
@@ -1708,7 +1759,8 @@ if (resetDemoButton) {
     localStorage.removeItem("enredarteApprovedArtists");
     localStorage.removeItem("enredarteRejectedApplications");
     localStorage.removeItem("enredarteShowProposals");
-    localStorage.removeItem("enredarteCurrentUser");
+
+    clearSessionContext();
 
     window.location.reload();
   });
@@ -1775,28 +1827,20 @@ function getSelectedSpaceName() {
 }
 
 function getCurrentSpaceFromSession() {
-  const currentUser = getCurrentUser();
+  const currentSpace = getCurrentSpaceSession();
 
-  if (!currentUser || currentUser.type !== "space") return null;
+  if (!currentSpace) return null;
 
   const approvedSpaces = getApprovedSpacesForPanel();
 
   return (
-    approvedSpaces.find((space) => createSlug(space.name) === currentUser.id) ||
-    approvedSpaces.find((space) => space.name === currentUser.name) ||
+    approvedSpaces.find((space) => createSlug(space.name) === currentSpace.id) ||
+    approvedSpaces.find((space) => space.name === currentSpace.name) ||
     null
   );
 }
 
-function setCurrentSpaceSession(space) {
-  if (!space) return;
 
-  setCurrentUser({
-    type: "space",
-    id: createSlug(space.name),
-    name: space.name,
-  });
-}
 
 function getOpportunitiesBySpace(spaceName) {
   return opportunities.filter((opportunity) => {
@@ -1810,26 +1854,43 @@ function renderSpacePanelSelect() {
   const approvedSpaces = getApprovedSpacesForPanel();
   const currentSpace = getCurrentSpaceFromSession();
 
+  if (currentSpace) {
+    spacePanelSelect.innerHTML = `
+      <option value="${currentSpace.name}">
+        ${currentSpace.name}
+      </option>
+    `;
+
+    spacePanelSelect.disabled = true;
+    return;
+  }
+
+  spacePanelSelect.disabled = false;
+
   if (approvedSpaces.length === 0) {
     spacePanelSelect.innerHTML = `
       <option value="">No hay espacios aprobados</option>
     `;
+
+    spacePanelSelect.disabled = true;
     return;
   }
 
-  spacePanelSelect.innerHTML = approvedSpaces
-    .map(
-      (space) => `
-        <option value="${space.name}">
-          ${space.name}
-        </option>
-      `
-    )
-    .join("");
+  spacePanelSelect.innerHTML = `
+    <option value="" selected disabled>
+      Elegí un espacio para continuar
+    </option>
 
-  if (currentSpace) {
-    spacePanelSelect.value = currentSpace.name;
-  }
+    ${approvedSpaces
+      .map(
+        (space) => `
+          <option value="${space.name}">
+            ${space.name}
+          </option>
+        `
+      )
+      .join("")}
+  `;
 }
 
 function renderSpacePanelSummary() {
@@ -2169,13 +2230,6 @@ function renderSpacePanel() {
   if (!spacePanelList) return;
 
   renderSpacePanelSelect();
-
-  const selectedSpace = getSelectedSpaceForPanel();
-
-  if (selectedSpace && !getCurrentSpaceFromSession()) {
-    setCurrentSpaceSession(selectedSpace);
-  }
-
   renderSpacePanelSummary();
   renderSpacePanelProposals();
   renderSpacePanelDashboard();
@@ -2187,6 +2241,8 @@ if (spacePanelSelect) {
 
     if (selectedSpace) {
       setCurrentSpaceSession(selectedSpace);
+      renderSpacePanelSelect();
+      updateSessionSwitch();
     }
 
     renderSpacePanelSummary();
@@ -2349,13 +2405,11 @@ function saveShowProposal(spaceKey, proposal) {
 }
 
 function hasArtistProfileCreated() {
-  return getSavedArtists().length > 0;
+  return Boolean(getCurrentArtistFromSession());
 }
 
 function getPrototypeCurrentArtist() {
-  const savedArtists = getSavedArtists();
-
-  return savedArtists[0] || null;
+  return getCurrentArtistFromSession();
 }
 
 function openProposalModal(space) {
@@ -2421,11 +2475,11 @@ document.addEventListener("click", (event) => {
       location: proposalButton.dataset.spaceLocation,
     };
 
-    if (!hasArtistProfileCreated()) {
+    if (!getCurrentArtistFromSession()) {
       pendingProposalSpace = space;
 
       alert(
-        "Para proponer una muestra primero necesitás crear tu perfil de artista."
+        "Para proponer una muestra primero necesitás crear o activar tu perfil de artista."
       );
 
       openArtistModalForProposal();
@@ -2448,6 +2502,13 @@ if (proposalForm) {
     const formData = new FormData(proposalForm);
     const proposalData = Object.fromEntries(formData);
     const currentArtist = getPrototypeCurrentArtist();
+
+    if (!currentArtist) {
+      alert("Para enviar una propuesta necesitás estar usando un perfil de artista.");
+      closeProposalModal();
+      openArtistModalForProposal();
+      return;
+    }
 
     const newProposal = {
       id: createSlug(`${proposalData.proposalTitle}-${Date.now()}`),
@@ -2697,15 +2758,15 @@ function getSelectedArtistName() {
 }
 
 function getCurrentArtistFromSession() {
-  const currentUser = getCurrentUser();
+  const currentArtist = getCurrentArtistSession();
 
-  if (!currentUser || currentUser.type !== "artist") return null;
+  if (!currentArtist) return null;
 
   const savedArtists = getSavedArtists();
 
   return (
-    savedArtists.find((artist) => artist.id === currentUser.id) ||
-    savedArtists.find((artist) => artist.name === currentUser.name) ||
+    savedArtists.find((artist) => artist.id === currentArtist.id) ||
+    savedArtists.find((artist) => artist.name === currentArtist.name) ||
     null
   );
 }
@@ -2801,13 +2862,12 @@ function renderArtistPanelSelect() {
 
   if (currentArtist) {
     artistPanelSelect.innerHTML = `
-    <option value="${currentArtist.name}">
-      ${currentArtist.name}
-    </option>
-  `;
+      <option value="${currentArtist.name}">
+        ${currentArtist.name}
+      </option>
+    `;
 
     artistPanelSelect.disabled = true;
-
     return;
   }
 
@@ -2817,20 +2877,28 @@ function renderArtistPanelSelect() {
 
   if (artists.length === 0) {
     artistPanelSelect.innerHTML = `
-    <option value="">No hay artistas creados</option>
-  `;
+      <option value="">No hay artistas creados</option>
+    `;
+
+    artistPanelSelect.disabled = true;
     return;
   }
 
-  artistPanelSelect.innerHTML = artists
-    .map(
-      (artist) => `
-      <option value="${artist.name}">
-        ${artist.name}
-      </option>
-    `
-    )
-    .join("");
+  artistPanelSelect.innerHTML = `
+    <option value="" selected disabled>
+      Elegí un artista para continuar
+    </option>
+
+    ${artists
+      .map(
+        (artist) => `
+          <option value="${artist.name}">
+            ${artist.name}
+          </option>
+        `
+      )
+      .join("")}
+  `;
 }
 
 function renderArtistPanelSummary() {
@@ -3109,6 +3177,16 @@ function renderArtistPanel() {
 
 if (artistPanelSelect) {
   artistPanelSelect.addEventListener("change", () => {
+    const selectedArtist = getSavedArtists().find((artist) => {
+      return artist.name === getSelectedArtistName();
+    });
+
+    if (selectedArtist) {
+      setCurrentArtistSession(selectedArtist);
+      renderArtistPanelSelect();
+      updateSessionSwitch();
+    }
+
     renderArtistPanelSummary();
     renderArtistPanelProfile();
     renderArtistPanelApplications();
