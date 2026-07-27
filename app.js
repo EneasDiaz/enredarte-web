@@ -2530,10 +2530,9 @@ if (proposalForm) {
       date: proposalData.date || "A coordinar",
       artistCount: proposalData.artistCount || "A definir",
       portfolio: proposalData.portfolio,
-      artistName: currentArtist ? currentArtist.name : "Artista sin nombre",
-      artistDiscipline: currentArtist
-        ? currentArtist.discipline
-        : proposalData.discipline,
+      artistId: currentArtist.id || createSlug(currentArtist.name),
+      artistName: currentArtist.name,
+      artistDiscipline: currentArtist.discipline,
       status: "pending",
       createdAt: new Date().toISOString(),
     };
@@ -2725,6 +2724,7 @@ if (convertProposalForm) {
     saveOpportunity(newOpportunity);
 
     saveApprovedArtist(newOpportunitySlug, {
+      artistId: proposal.artistId,
       name: proposal.artistName,
       discipline: proposal.artistDiscipline,
       portfolio: proposal.portfolio,
@@ -2797,14 +2797,36 @@ function getAllShowProposals() {
   return Object.values(savedProposals).flat();
 }
 
+function belongsToArtist(record, artist) {
+  if (!record || !artist) return false;
+
+  if (record.artistId && artist.id) {
+    return record.artistId === artist.id;
+  }
+
+  const recordName = record.artistName || record.name || "";
+
+  if (recordName && artist.name && recordName === artist.name) {
+    return true;
+  }
+
+  const recordPortfolio = record.portfolio || "";
+  const artistPortfolio = artist.portfolio || artist.instagram || "";
+
+  const hasUsefulPortfolio =
+    recordPortfolio &&
+    artistPortfolio &&
+    recordPortfolio !== "portfolio pendiente" &&
+    artistPortfolio !== "portfolio pendiente";
+
+  return hasUsefulPortfolio && recordPortfolio === artistPortfolio;
+}
+
 function getArtistPanelProposals(artist) {
   if (!artist) return [];
 
   return getAllShowProposals().filter((proposal) => {
-    return (
-      proposal.artistName === artist.name ||
-      proposal.portfolio === artist.portfolio
-    );
+    return belongsToArtist(proposal, artist);
   });
 }
 
@@ -2818,10 +2840,7 @@ function getArtistPanelApplications(artist) {
 
     return applications
       .filter((application) => {
-        return (
-          application.name === artist.name ||
-          application.portfolio === artist.portfolio
-        );
+        return belongsToArtist(application, artist);
       })
       .map((application) => ({
         ...application,
