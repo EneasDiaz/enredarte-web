@@ -213,7 +213,7 @@ function setCurrentSpaceSession(space) {
   if (!space) return;
 
   setStoredData("enredarteCurrentSpace", {
-    id: createSlug(space.name),
+    id: space.id || createSlug(space.name),
     name: space.name,
   });
 }
@@ -1844,7 +1844,10 @@ function getCurrentSpaceFromSession() {
   const approvedSpaces = getApprovedSpacesForPanel();
 
   return (
-    approvedSpaces.find((space) => createSlug(space.name) === currentSpace.id) ||
+    approvedSpaces.find(
+      (space) =>
+        (space.id || createSlug(space.name)) === currentSpace.id
+    ) ||
     approvedSpaces.find((space) => space.name === currentSpace.name) ||
     null
   );
